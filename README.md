@@ -74,7 +74,6 @@ To actually "activate" the plugin, its settings need to be included in the build
         // add any dependencies other data template modules, to depend on their .pdscs, here.
         // e.g. .settings(libraryDependencies += "{group}" % "{name}" % "{version}" % "dataTemplate")
 
-
       /**
        * This project is for handwritten Rest.li server code -- resource classes and support code.
        */
