@@ -1,11 +1,18 @@
 # restli-sbt-plugin
 A plugin for rest.li that provides all the build tasks required to build rest.li applications.  This includes `.pdsc` to data template code generation, `.pdsc` to `.avro` translation, rest client builder generation and idl publishing and validation.
 
+## Requirements
+
+Java 1.6+
+Gradle 1.8+ (optional, sort of, if not installed on local machine './gradlew' can be used and it will download the gradle jar)
+
 ## Building
 
 To build and install as a snapshot in your local maven repo, run:
 
-    gradle install
+    ./gradlew install
+
+(if you already have gradle installed, you can just run "gradle install", gradle 1.8+ required)
 
 And be sure you include this in your project/Build.scala:
 
