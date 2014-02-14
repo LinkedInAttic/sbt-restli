@@ -94,7 +94,8 @@ object Example extends Build with restli.All {
     // or, .dependsOn(someOtherDataTemplateProject)
 
   /**
-   * This project is for handwritten Rest.li server code -- resource classes and support code.
+   * This project contains your handwritten Rest.li "resource" implementations.  See rest.li documentation for detail
+   * on how to write resource classes.
    */
   lazy val sampleServer = Project("sample-server", file("sample-server"))
     .dependsOn(dataTemplate)
@@ -102,8 +103,12 @@ object Example extends Build with restli.All {
     .settings(baseSettings: _*)
 
   /**
-   * This project is for generated client bindings, which are entirely generated code.  Clients to your rest.li
-   * service should depend on this project or it's published artifacts.
+   * This project contains your API contract and will generate "client binding" class into the
+   * target/classes directory.  Clients to your rest.li service should depend on this project
+   * or it's published artifacts (depend on the "restClient" configuration).
+   *
+   * Files under the src/idl and src/snapshot directories must be checked in to source control.  They are the
+   * API contract and are used to generate client bindings and perform compatibility checking.
    */
   lazy val rest = Project("rest", file("rest"))
     .dependsOn(dataTemplate)
