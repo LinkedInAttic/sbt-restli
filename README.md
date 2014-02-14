@@ -1,37 +1,38 @@
 rest.li-sbt-plugin
 ==================
 
-A plugin for [rest.li](github.com/linkedin/rest.li) that provides all the build tasks required to build
+SBT plugin for [rest.li](https://github.com/linkedin/rest.li) that provides all the build tasks required to build
 rest.li applications.  This includes `.pdsc` to data template code generation, rest client builder generation
-and idl publishing and validation.
+and interface definitions (idl) publishing and validation.
+
+All features support SBT hot reload.  To use with Play, simply define server projects as a `play.Project` (rather than
+just a `Project`) and put all source in the server project under an `app` directory instead of `src/main/scala`.
 
 Requirements
 ------------
 
 * Java 1.6+
-* Gradle 1.8+ (optional, sort of, if not installed on local machine './gradlew' can be used and it will download the gradle jar)
+* Gradle 1.8+ (optional)
 
-Building
---------
+Building from Source
+--------------------
 
-(if you already have gradle installed, you can just run "gradle" instead of "./gradlew", if you like.
-gradle 1.8+ required)
-
-To build and install as a snapshot in your local maven repo, run:
+To build from source and install as a snapshot in your local repo, clone this repo and build it:
 
 For Ivy:
 
     ./gradlew uploadArchives
 
-Ivy artifacts will be written into ~/.ivy2/local.
+Ivy artifacts will be written into `~/.ivy2/local`.
 
 For Maven:
 
     ./gradlew install
 
-Maven artifacts will be written into ~/.m2/repository.
+Maven artifacts will be written into `~/.m2/repository`.
 
-And be sure you include this in your project/Build.scala:
+Once built, you'll need to remember to add resolvers to these repositories when you use the plugin in your sbt projects
+When following the below "usage" directions, remember to put this in your project/Build.scala:
 
     val baseSettings = Seq(
       resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
@@ -39,20 +40,20 @@ And be sure you include this in your project/Build.scala:
       resolvers += Resolver.file("Local Ivy Repository", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns)
     )
 
-and this in your project/plugins.scala:
+and this in your `project/plugins.scala`:
 
     resolvers += "Local Maven Repository" at "file:///"+Path.userHome+"/.m2/repository"
     // OR
     resolvers += Resolver.file("Local Ivy Repository", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns)
 
-Usage
------
+Getting Started
+---------------
 
 ### Adding the plugin dependency
 
-In your project, create a file for plugin library dependencies `project/plugins/build.sbt` and add the following lines:
+In your project, create a file for plugin library dependencies `project/plugins.sbt` and add the following lines:
 
-    // add any resolvers required for the below library dependency here
+    // add any resolvers required for the plugin library dependency here (see above if building from source)
 
     libraryDependencies += "com.linkedin.pegasus" %% "sbt-plugin" % "0.0.1"
 
@@ -60,9 +61,9 @@ In your project, create a file for plugin library dependencies `project/plugins/
 
 To actually "activate" the plugin, its settings need to be included in the build.  The main steps are:
 
-* import com.linkedin.sbt._
-* add the restli.All trait to your Build
-* Use .compilePegasus() and .compileRestspec() in your projects
+* `import com.linkedin.sbt._`
+* add the `restli.All` trait to your `Build`
+* Use `.compilePegasus()` and `.compileRestspec()` in your projects
 
 ##### project/Build.scala
 
@@ -71,10 +72,13 @@ import com.linkedin.sbt._
 import sbt._
 import Keys._
 
+/**
+ * This build includes the rest.All trait, enabling all pegasus project types.
+ */
 object Example extends Build with restli.All {
 
   val baseSettings = Seq(
-    // add any resolvers required for the below library dependencies here
+    // add any resolvers required for the plugin library dependency here (see above if building from source)
   )
 
   /**
@@ -83,10 +87,11 @@ object Example extends Build with restli.All {
    */
   lazy val dataTemplate = Project("data-template", file("data-template"))
     .compilePegasus()
-      .settings(libraryDependencies += "com.linkedin.pegasus" % "data" % "1.13.4")
+    .settings(libraryDependencies += "com.linkedin.pegasus" % "data" % "1.13.4")
     .settings(baseSettings: _*)
     // add any dependencies other data template modules, to depend on their .pdscs, here.
     // e.g. .settings(libraryDependencies += "{group}" % "{name}" % "{version}" % "dataTemplate")
+    // or, .dependsOn(someOtherDataTemplateProject)
 
   /**
    * This project is for handwritten Rest.li server code -- resource classes and support code.
@@ -102,13 +107,14 @@ object Example extends Build with restli.All {
    */
   lazy val rest = Project("rest", file("rest"))
     .dependsOn(dataTemplate)
-    .settings(baseSettings:_*)
     .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-client" % "1.13.4")
+    .settings(baseSettings:_*)
     .compileRestspec(
       apiName = "sample",
       resourceProject = sampleServer,
       resourcePackages = List("com.linkedin.pegasus.example"), // change this to match the package name where your *Resource.scala files reside.
       dataTemplateProject = dataTemplate,
+
       // change to "backwards" to enable rest.li's backward compatibility checker.  May also
       // be set to "equivalent", which is useful in continuous integration machinery to validate
       // that the rest project is in exact sync with the server implementation code.
