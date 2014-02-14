@@ -8,11 +8,21 @@ Gradle 1.8+ (optional, sort of, if not installed on local machine './gradlew' ca
 
 ## Building
 
+(if you already have gradle installed, you can just run "gradle" instead of "./gradlew", if you like.  gradle 1.8+ required)
+
 To build and install as a snapshot in your local maven repo, run:
+
+For Ivy:
+
+    ./gradlew uploadArchives
+
+Ivy artifacts will be written into ~/.ivy2/local.
+
+For Maven:
 
     ./gradlew install
 
-(if you already have gradle installed, you can just run "gradle install", gradle 1.8+ required)
+Maven artifacts will be written into ~/.m2/repository.
 
 And be sure you include this in your project/Build.scala:
 

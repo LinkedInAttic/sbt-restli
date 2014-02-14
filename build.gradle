@@ -72,5 +72,17 @@ subprojects {
       }
     }
   }
+
+  uploadArchives {
+    repositories {
+      ivy {
+        url "${System.properties['user.home']}${File.separator}.ivy2${File.separator}local"
+        layout 'pattern', {
+          artifact "[organisation]/[module]/[revision]/[type]s/[artifact].[ext]"
+          ivy "[organisation]/[module]/[revision]/[type]s/[artifact].[ext]"
+        }
+      }
+    }
+  }
 }
 

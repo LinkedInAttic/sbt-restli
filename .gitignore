@@ -9,4 +9,5 @@
 build/
 */build/
 out/
+example/target/
 example/*/target/
