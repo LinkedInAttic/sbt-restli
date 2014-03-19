@@ -17,15 +17,7 @@ Requirements
 Building from Source
 --------------------
 
-To build from source and install as a snapshot in your local repo, clone this repo and build it:
-
-For Ivy:
-
-    ./gradlew uploadArchives
-
-Ivy artifacts will be written into `~/.ivy2/local`.
-
-For Maven:
+To build from source and install as a snapshot in your local maven repo, clone this repo and build it:
 
     ./gradlew install
 
@@ -36,15 +28,11 @@ When following the below "usage" directions, remember to put this in your projec
 
     val baseSettings = Seq(
       resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
-      // OR
-      resolvers += Resolver.file("Local Ivy Repository", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns)
     )
 
 and this in your `project/plugins.scala`:
 
     resolvers += "Local Maven Repository" at "file:///"+Path.userHome+"/.m2/repository"
-    // OR
-    resolvers += Resolver.file("Local Ivy Repository", file(Path.userHome + "/.ivy2/local"))(Resolver.ivyStylePatterns)
 
 Getting Started
 ---------------
