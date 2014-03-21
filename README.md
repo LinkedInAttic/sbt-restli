@@ -53,7 +53,7 @@ In your project, create a file for plugin library dependencies `project/plugins.
 
     // add any resolvers required for the plugin library dependency here (see above if building from source)
 
-    libraryDependencies += "com.linkedin.pegasus" %% "sbt-plugin" % "0.0.1"
+    libraryDependencies += "com.linkedin.pegasus" %% "sbt-plugin" % "0.0.2"
 
 ### Importing sbt-plugin settings
 
