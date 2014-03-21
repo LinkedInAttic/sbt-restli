@@ -19,20 +19,30 @@ Building from Source
 
 To build from source and install as a snapshot in your local maven repo, clone this repo and build it:
 
-    ./gradlew install
+```sh
+./gradlew install
+```
 
 Maven artifacts will be written into `~/.m2/repository`.
 
 Once built, you'll need to remember to add resolvers to these repositories when you use the plugin in your sbt projects
 When following the below "usage" directions, remember to put this in your project/Build.scala:
 
-    val baseSettings = Seq(
-      resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
-    )
+```scala
+val baseSettings = Seq(
+  resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
+)
+```
 
 and this in your `project/plugins.scala`:
 
-    resolvers += "Local Maven Repository" at "file:///"+Path.userHome+"/.m2/repository"
+```scala
+unmanagedJars in Compile ~= {uj => 
+  Seq(Attributed.blank(file(System.getProperty("java.home").dropRight(3)+"lib/tools.jar"))) ++ uj
+}
+
+resolvers += "Local Maven Repository" at "file:///"+Path.userHome+"/.m2/repository"
+```
 
 Getting Started
 ---------------

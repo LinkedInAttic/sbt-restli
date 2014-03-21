@@ -1,3 +1,7 @@
 resolvers += "Local Maven Repository" at "file:///"+Path.userHome+"/.m2/repository"
 
-libraryDependencies += "com.linkedin.pegasus" % "sbt-plugin_2.10" % "0.0.1"
+unmanagedJars in Compile ~= {uj => 
+    Seq(Attributed.blank(file(System.getProperty("java.home").dropRight(3)+"lib/tools.jar"))) ++ uj
+}
+
+libraryDependencies += "com.linkedin.pegasus" % "sbt-plugin_2.10" % "0.0.2"

@@ -308,7 +308,7 @@ trait Restspec extends Restli {
       generatedJavaDir.mkdirs()
       val generatedBuilder = {
         try {
-          RestRequestBuilderGenerator.run(resolverPath, null, null, false,
+          RestRequestBuilderGenerator.run(resolverPath, null, null, false, false,
             generatedJavaDir.getAbsolutePath, idlJsonFiles.map(_.getAbsolutePath).toArray)
         } catch {
           case e: Throwable =>

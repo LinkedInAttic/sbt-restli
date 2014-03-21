@@ -20,6 +20,7 @@
 // we wait for gradle to add support for scala cross build support.
 
 apply plugin: 'scala'
+apply plugin: 'maven-publish'
 
 dependencies {
   // This sbt artifact is non-standard.  Default configuration does not exist, so must explicitly request the compile configuration.
@@ -31,4 +32,5 @@ dependencies {
   compile externalDependency.restliGenerator
   compile externalDependency.restliTools
   compile externalDependency.restliToolsScala
+  compile files("${System.getProperty('java.home')}/../lib/tools.jar")
 }

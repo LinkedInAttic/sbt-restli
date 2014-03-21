@@ -45,6 +45,8 @@ subprojects {
     // Avoid conflicts with logback
     exclude group: 'log4j', module: 'log4j'
     exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    // not sure how this got pulled in, we will fix the underlying rest.li issue,  excluding it until we resolve
+    exclude group: 'com.linkedin.pegasus', module: 'log-test-config'
   }
 
   project.group = 'com.linkedin.pegasus'
@@ -106,7 +108,7 @@ subprojects {
         repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
           authentication(userName: sonatypeUsername, password: sonatypePassword)
         }
-
+        
         pom.project {
           name project.name
           packaging 'jar'

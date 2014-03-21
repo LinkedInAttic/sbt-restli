@@ -76,4 +76,6 @@ object Example extends Build with restli.All {
       // that the rest project is in exact sync with the server implementation code.
       compatMode = "ignore"
     )
+
+  override lazy val rootProject = Option(sampleServer)
 }
