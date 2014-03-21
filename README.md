@@ -1,7 +1,7 @@
 rest.li-sbt-plugin
 ==================
 
-SBT plugin for [rest.li](https://github.com/linkedin/rest.li) that provides all the build tasks required to build
+SBT plugin for [rest.li](https://github.com/linkedin/rest.li).  This plugin provides full SBT integration for building
 rest.li applications.  This includes `.pdsc` to data template code generation, rest client builder generation
 and interface definitions (idl) publishing and validation.
 
