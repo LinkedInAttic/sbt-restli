@@ -52,6 +52,20 @@ object Example extends Build with restli.All {
     .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-server" % "1.13.4")
     .settings(baseSettings: _*)
 
+    /*
+    .compileRestspec(
+      apiName = "sample",
+      resourceProject = sampleServer,
+      resourcePackages = List("com.linkedin.pegasus.example"), // change this to match the package name where your *Resource.scala files reside.
+      dataTemplateProject = dataTemplate,
+
+      // change to "backwards" to enable rest.li's backward compatibility checker.  May also
+      // be set to "equivalent", which is useful in continuous integration machinery to validate
+      // that the rest project is in exact sync with the server implementation code.
+      compatMode = "ignore" x
+    )
+    */
+
   /**
    * This project contains your API contract and will generate "client binding" class into the
    * target/classes directory.  Clients to your rest.li service should depend on this project
@@ -62,20 +76,11 @@ object Example extends Build with restli.All {
    */
   lazy val rest = Project("rest", file("rest"))
     .dependsOn(dataTemplate)
-    .settings(autoScalaLibrary := false)
     .settings(baseSettings:_*)
     .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-client" % "1.13.4")
-    .compileRestspec(
-      apiName = "sample",
-      resourceProject = sampleServer,
-      resourcePackages = List("com.linkedin.pegasus.example"), // change this to match the package name where your *Resource.scala files reside.
-      dataTemplateProject = dataTemplate,
-
-      // change to "backwards" to enable rest.li's backward compatibility checker.  May also
-      // be set to "equivalent", which is useful in continuous integration machinery to validate
-      // that the rest project is in exact sync with the server implementation code.
-      compatMode = "ignore"
-    )
+    .generateRequestBuilders(
+      dataTemplateProject = dataTemplate
+     )
 
   override lazy val rootProject = Option(sampleServer)
 }

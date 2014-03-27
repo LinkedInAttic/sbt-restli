@@ -23,7 +23,7 @@ import sbt.Keys._
 /**
  * Convenience trait that includes all Restli functionality
  */
-trait All extends Pegasus with Restspec
+trait All extends Pegasus with Restspec with RestRequestBuilders
 trait RestliTypeProject {
   val project : Project
 }

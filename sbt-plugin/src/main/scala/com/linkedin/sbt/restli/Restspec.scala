@@ -277,64 +277,6 @@ trait Restspec extends Restli {
 
     restliSnapshotPublishedJsonDir.value.get
   }
-
-  /**
-   * Runs `com.linkedin.restli.tools.clientgen.RestRequestBuilderGenerator` on the output of
-   * `restliResourceModelExport in Compile` and returns a `Seq[java.io.File]` of the generated Java files.
-   * If the output of the export task is `None`, this task just returns the existing Java files.
-   */
-  val restspecGenerator = Def.task {
-    val s = streams.value
-    val snapshotJsonFiles = (restLiSnapshotPublish in Compile).value
-    val idlJsonFiles = (restLiRestspecPublish in Compile).value
-    val generatedJavaDir = restliRestspecGeneratedJavaDir.value
-    val resourceProducts = restliRestspecResourceProducts.value
-    val apiName = restliRestspecApiName.value
-    val generateDataTemplates = restliRestspecGenerateDatatemplates.value
-    val idlJsonInfoCache = restliRestspecJsonInfoCache.value
-    val snapshotJsonInfoCache = restliSnapshotJsonInfoCache.value
-    val resolverPath = restliRestspecResolverPath.value
-
-    val (anyIdlChanged, idlUpdateCache) = prepareCacheUpdate(idlJsonInfoCache, idlJsonFiles, s)
-    val (anySnapshotsChanged, snapshotUpdateCache) = prepareCacheUpdate(snapshotJsonInfoCache, snapshotJsonFiles, s)
-
-    if (anyIdlChanged || anySnapshotsChanged) {
-      val previousJavaFiles = (generatedJavaDir ** JavaFileGlobExpr).get
-
-      s.log.debug("generating java files based on restspec files: " + idlJsonFiles.toList.toString)
-      System.setProperty("generator.rest.generate.datatemplates", generateDataTemplates.toString)
-      System.setProperty("generator.default.package", "")
-
-      generatedJavaDir.mkdirs()
-      val generatedBuilder = {
-        try {
-          RestRequestBuilderGenerator.run(resolverPath, null, null, false, false,
-            generatedJavaDir.getAbsolutePath, idlJsonFiles.map(_.getAbsolutePath).toArray)
-        } catch {
-          case e: Throwable =>
-            s.log.error("Running RestRequestBuilderGenerator for %s: %s".format(apiName, e.toString))
-            s.log.error("Resolver Path: " + resolverPath)
-            s.log.error("IDL JSON files: " + idlJsonFiles)
-            s.log.error("Generated Java dir: " + generatedJavaDir)
-            s.log.error("Resource project products: " + resourceProducts.mkString(", "))
-            s.log.error("Generate data templates: " + generateDataTemplates)
-            s.log.error("JSON file glob expression: " + IdlCheckerGenerator.fileGlob)
-            throw e
-        }
-      }
-      val generatedJavaFiles = generatedBuilder.getModifiedFiles.asScala.toSeq ++ generatedBuilder.getTargetFiles.asScala.toSeq
-      s.log.debug("generated java files: " + generatedJavaFiles.toList.toString)
-
-      //cleanup stale java files
-      val staleFiles = previousJavaFiles.sorted.diff(generatedJavaFiles.sorted)
-      s.log.debug("deleting stale files (" + staleFiles.size + "): " + staleFiles)
-      IO.delete(staleFiles)
-
-      idlUpdateCache() //we only update the cache when we get here, which means we are successful
-      snapshotUpdateCache()
-    }
-    (generatedJavaDir ** JavaFileGlobExpr).get
-  }
 }
 
 trait CheckerGenerator {
