@@ -48,23 +48,20 @@ object Example extends Build with restli.All {
    * on how to write resource classes.
    */
   lazy val sampleServer = Project("sample-server", file("sample-server"))
-    .dependsOn(dataTemplate)
+    .dependsOn(dataTemplate, rest).aggregate(dataTemplate, rest)
     .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-server" % "1.13.4")
     .settings(baseSettings: _*)
-
-    /*
     .compileRestspec(
       apiName = "sample",
-      resourceProject = sampleServer,
+      apiProject = rest,
       resourcePackages = List("com.linkedin.pegasus.example"), // change this to match the package name where your *Resource.scala files reside.
       dataTemplateProject = dataTemplate,
 
       // change to "backwards" to enable rest.li's backward compatibility checker.  May also
       // be set to "equivalent", which is useful in continuous integration machinery to validate
       // that the rest project is in exact sync with the server implementation code.
-      compatMode = "ignore" x
+      compatMode = "ignore"
     )
-    */
 
   /**
    * This project contains your API contract and will generate "client binding" class into the
@@ -80,7 +77,7 @@ object Example extends Build with restli.All {
     .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-client" % "1.13.4")
     .generateRequestBuilders(
       dataTemplateProject = dataTemplate
-     )
+    )
 
   override lazy val rootProject = Option(sampleServer)
 }
