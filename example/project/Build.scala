@@ -48,7 +48,7 @@ object Example extends Build with restli.All {
    * on how to write resource classes.
    */
   lazy val sampleServer = Project("sample-server", file("sample-server"))
-    .dependsOn(dataTemplate, rest).aggregate(dataTemplate, rest)
+    .dependsOn(dataTemplate)
     .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-server" % "1.13.4")
     .settings(baseSettings: _*)
     .compileRestspec(
@@ -64,7 +64,7 @@ object Example extends Build with restli.All {
     )
 
   /**
-   * This project contains your API contract and will generate "client binding" class into the
+   * This project contains your API contract and will generate "client binding" classes into the
    * target/classes directory.  Clients to your rest.li service should depend on this project
    * or it's published artifacts (depend on the "restClient" configuration).
    *

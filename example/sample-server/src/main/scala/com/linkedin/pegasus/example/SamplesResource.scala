@@ -20,13 +20,10 @@ package com.linkedin.pegasus.example
 import com.linkedin.restli.server.resources.CollectionResourceTemplate
 import com.linkedin.restli.server.CreateResponse
 import com.linkedin.restli.server.annotations.RestLiCollection
-import com.linkedin.pegasus.example.client.SamplesBuilders
 import javax.inject.{Inject, Named}
 
 @RestLiCollection(name="samples", namespace = "com.linkedin.pegasus.example.client")
 class SamplesResource extends CollectionResourceTemplate[java.lang.Long, Sample] {
-
-  val builders = new SamplesBuilders
 
   override def get(key: java.lang.Long): Sample = {
     new Sample()
