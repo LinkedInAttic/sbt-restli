@@ -9,7 +9,6 @@
 build/
 */build/
 out/
-example/rest/
 example/target/
 example/*/target/
 example/project/project/target
