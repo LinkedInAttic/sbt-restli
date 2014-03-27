@@ -37,7 +37,7 @@ val baseSettings = Seq(
 and this in your `project/plugins.scala`:
 
 ```scala
-unmanagedJars in Compile ~= {uj => 
+unmanagedJars in Compile ~= {uj =>
   Seq(Attributed.blank(file(System.getProperty("java.home").dropRight(3)+"lib/tools.jar"))) ++ uj
 }
 
@@ -53,7 +53,7 @@ In your project, create a file for plugin library dependencies `project/plugins.
 
     // add any resolvers required for the plugin library dependency here (see above if building from source)
 
-    libraryDependencies += "com.linkedin.pegasus" %% "sbt-plugin" % "0.0.2"
+    libraryDependencies += "com.linkedin.pegasus" %% "sbt-plugin" % "0.1.0"
 
 ### Importing sbt-plugin settings
 
@@ -76,7 +76,9 @@ import Keys._
 object Example extends Build with restli.All {
 
   val baseSettings = Seq(
-    // add any resolvers required for the plugin library dependency here (see above if building from source)
+    organization := "com.linkedin.pegasus.example",
+    version := "0.0.1",
+    resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
   )
 
   /**
@@ -89,7 +91,7 @@ object Example extends Build with restli.All {
     .settings(baseSettings: _*)
     // add any dependencies other data template modules, to depend on their .pdscs, here.
     // e.g. .settings(libraryDependencies += "{group}" % "{name}" % "{version}" % "dataTemplate")
-    // or, .dependsOn(someOtherDataTemplateProject)
+    // or,  .dependsOn(someOtherDataTemplateProject)
 
   /**
    * This project contains your handwritten Rest.li "resource" implementations.  See rest.li documentation for detail
@@ -97,24 +99,12 @@ object Example extends Build with restli.All {
    */
   lazy val sampleServer = Project("sample-server", file("sample-server"))
     .dependsOn(dataTemplate)
+    .aggregate(dataTemplate, rest)
     .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-server" % "1.13.4")
     .settings(baseSettings: _*)
-
-  /**
-   * This project contains your API contract and will generate "client binding" class into the
-   * target/classes directory.  Clients to your rest.li service should depend on this project
-   * or it's published artifacts (depend on the "restClient" configuration).
-   *
-   * Files under the src/idl and src/snapshot directories must be checked in to source control.  They are the
-   * API contract and are used to generate client bindings and perform compatibility checking.
-   */
-  lazy val rest = Project("rest", file("rest"))
-    .dependsOn(dataTemplate)
-    .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-client" % "1.13.4")
-    .settings(baseSettings:_*)
     .compileRestspec(
       apiName = "sample",
-      resourceProject = sampleServer,
+      apiProject = rest,
       resourcePackages = List("com.linkedin.pegasus.example"), // change this to match the package name where your *Resource.scala files reside.
       dataTemplateProject = dataTemplate,
 
@@ -123,5 +113,23 @@ object Example extends Build with restli.All {
       // that the rest project is in exact sync with the server implementation code.
       compatMode = "ignore"
     )
+
+  /**
+   * This project contains your API contract and will generate "client binding" classes into the
+   * target/classes directory.  Clients to your rest.li service should depend on this project
+   * or it's published artifacts (depend on the "restClient" configuration).
+   *
+   * Files under the src/idl and src/snapshot directories must be checked in to source control.  They are the
+   * API contract and are used to generate client bindings and perform compatibility checking.
+   */
+  lazy val rest = Project("rest", file("rest"))
+    .dependsOn(dataTemplate)
+    .settings(baseSettings:_*)
+    .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-client" % "1.13.4")
+    .generateRequestBuilders(
+      dataTemplateProject = dataTemplate
+    )
+
+  override lazy val rootProject = Option(sampleServer)
 }
 ```

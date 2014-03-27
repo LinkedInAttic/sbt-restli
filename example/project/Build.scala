@@ -20,8 +20,7 @@ import sbt._
 import Keys._
 
 /**
- * This project is for hand written *.pdsc files.  It will generate "data template" class bindings into the
- * target/classes directory.
+ * This build includes the rest.All trait, enabling all pegasus project types.
  */
 object Example extends Build with restli.All {
 
@@ -49,6 +48,7 @@ object Example extends Build with restli.All {
    */
   lazy val sampleServer = Project("sample-server", file("sample-server"))
     .dependsOn(dataTemplate)
+    .aggregate(dataTemplate, rest)
     .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-server" % "1.13.4")
     .settings(baseSettings: _*)
     .compileRestspec(
