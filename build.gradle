@@ -14,6 +14,18 @@
    limitations under the License.
 */
 
+
+project.ext.isDefaultEnvironment = !project.hasProperty('overrideBuildEnvironment')
+
+File getEnvironmentScript()
+{
+  final File env = file(isDefaultEnvironment ? 'defaultEnvironment.gradle' : project.overrideBuildEnvironment)
+  assert env.isFile() : "The environment script [$env] does not exists or is not a file."
+  return env
+}
+
+apply from: environmentScript
+
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 
@@ -34,9 +46,6 @@ subprojects {
   apply plugin: 'idea'
   apply plugin: 'eclipse'
 
-  apply plugin: 'maven'
-  apply plugin: 'signing'
-
   configurations.all {
     // Avoid conflicts with google guava
     exclude group: 'com.google.collections', module: 'google-collections'
@@ -49,96 +58,102 @@ subprojects {
     exclude group: 'com.linkedin.pegasus', module: 'log-test-config'
   }
 
-  project.group = 'com.linkedin.pegasus'
-  project.version = version
+  if (isDefaultEnvironment)
+  {
+    apply plugin: 'maven'
+    apply plugin: 'signing'
 
-  repositories {
-    mavenLocal()
-    mavenCentral()
+    project.group = 'com.linkedin.pegasus'
+    project.version = version
 
-    /*
-     * Typesafe's repo is a mess.  They have mixed maven (.pom) and ivy into the same tree.  Some artifacts
-     * are only published as maven, others only as ivy.  Looks like there are even some that are published as both.
-     *
-     * Their ivy paths are non-standard so they can cross compile to scala and sbt versions.
-     * But it appears inconsistent, scala version and sbt versions number in some paths, but not for others, even
-     * for artifacts that are scala version dependant.
-     */
-    maven {
-      url "http://repo.typesafe.com/typesafe/releases/"
-    }
-
-    ivy {
-      url "http://repo.typesafe.com/typesafe/releases/"
-      layout "pattern", {
-        ivy "[organisation]/[module]/scala_${scalaMajorVersion}/sbt_${sbtMajorVersion}/[revision]/ivys/ivy.xml"
-        artifact "[organisation]/[module]/scala_${scalaMajorVersion}/sbt_${sbtMajorVersion}/[revision]/jars/[artifact].[ext]"
-        ivy "[organisation]/[module]/[revision]/ivys/ivy.xml"
-        artifact "[organisation]/[module]/[revision]/jars/[artifact].[ext]"
+    repositories {
+      mavenLocal()
+      mavenCentral()
+  
+      /*
+       * Typesafe's repo is a mess.  They have mixed maven (.pom) and ivy into the same tree.  Some artifacts
+       * are only published as maven, others only as ivy.  Looks like there are even some that are published as both.
+       *
+       * Their ivy paths are non-standard so they can cross compile to scala and sbt versions.
+       * But it appears inconsistent, scala version and sbt versions number in some paths, but not for others, even
+       * for artifacts that are scala version dependant.
+       */
+      maven {
+        url "http://repo.typesafe.com/typesafe/releases/"
+      }
+  
+      ivy {
+        url "http://repo.typesafe.com/typesafe/releases/"
+        layout "pattern", {
+          ivy "[organisation]/[module]/scala_${scalaMajorVersion}/sbt_${sbtMajorVersion}/[revision]/ivys/ivy.xml"
+          artifact "[organisation]/[module]/scala_${scalaMajorVersion}/sbt_${sbtMajorVersion}/[revision]/jars/[artifact].[ext]"
+          ivy "[organisation]/[module]/[revision]/ivys/ivy.xml"
+          artifact "[organisation]/[module]/[revision]/jars/[artifact].[ext]"
+        }
       }
     }
-  }
-
-  task sourcesJar(type: Jar, dependsOn: classes) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-  }
-
-  task javadocJar(type: Jar, dependsOn: javadoc) {
-    from javadoc.destinationDir
-    classifier = 'javadoc'
-  }
-
-  artifacts {
-    archives jar
-    archives sourcesJar
-    archives javadocJar
-  }
-
-  signing {
-    required = { gradle.taskGraph.hasTask("uploadArchives") }
-    sign configurations.archives
-  }
-
-  uploadArchives {
-    repositories {
-      mavenDeployer {
-        beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
-
-        repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-          authentication(userName: sonatypeUsername, password: sonatypePassword)
-        }
-        
-        pom.project {
-          name project.name
-          packaging 'jar'
-          description 'SBT plugin for rest.li that provides all the build tasks required to build rest.li applications.'
-          url 'http://github.com/linkedin/rest.li-sbt-plugin'
-
-          scm {
-            url 'git@github.com:linkedin/rest.li-sbt-plugin.git'
-            connection 'scm:git:git@github.com:linkedin/rest.li-sbt-plugin.git'
-            developerConnection 'scm:git:git@github.com:linkedin/rest.li-sbt-plugin.git'
+  
+    task sourcesJar(type: Jar, dependsOn: classes) {
+      from sourceSets.main.allSource
+      classifier = 'sources'
+    }
+  
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+      from javadoc.destinationDir
+      classifier = 'javadoc'
+    }
+  
+    artifacts {
+      archives jar
+      archives sourcesJar
+      archives javadocJar
+    }
+  
+    signing {
+      required = { gradle.taskGraph.hasTask("uploadArchives") }
+      sign configurations.archives
+    }
+  
+    uploadArchives {
+      repositories {
+        mavenDeployer {
+          beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
+  
+          repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            authentication(userName: sonatypeUsername, password: sonatypePassword)
           }
-
-          licenses {
-            license {
-              name 'The Apache Software License, Version 2.0'
-              url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-              distribution 'repo'
+          
+          pom.project {
+            name project.name
+            packaging 'jar'
+            description 'SBT plugin for rest.li that provides all the build tasks required to build rest.li applications.'
+            url 'http://github.com/linkedin/rest.li-sbt-plugin'
+  
+            scm {
+              url 'git@github.com:linkedin/rest.li-sbt-plugin.git'
+              connection 'scm:git:git@github.com:linkedin/rest.li-sbt-plugin.git'
+              developerConnection 'scm:git:git@github.com:linkedin/rest.li-sbt-plugin.git'
             }
-          }
-          developers {
-            developer {
-              id 'jpbetz'
-              name 'Joe Betz'
+  
+            licenses {
+              license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+              }
             }
-            developer {
-              id 'brikis98'
-              name 'Jim Brikman'
-            }
-            developer {
-              name 'Dean Thompson'
+            developers {
+              developer {
+                id 'jpbetz'
+                name 'Joe Betz'
+              }
+              developer {
+                id 'brikis98'
+                name 'Jim Brikman'
+              }
+              developer {
+                name 'Dean Thompson'
+              }
             }
           }
         }
