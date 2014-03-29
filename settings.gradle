@@ -15,6 +15,7 @@
 */
 
 include 'sbt-plugin'
+include 'test'
 
 // see restli-tools-scala/build.gradle for more information about this rename:
 project(':sbt-plugin').name = "sbt-plugin_${scalaMajorVersion}"

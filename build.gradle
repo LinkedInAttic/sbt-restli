@@ -37,7 +37,9 @@ project.ext.externalDependency = [
   'log4jOverSlf4j': "org.slf4j:log4j-over-slf4j:1.7.5",
   'restliGenerator': "com.linkedin.pegasus:generator:${pegasusVersion}",
   'restliTools': "com.linkedin.pegasus:restli-tools:${pegasusVersion}",
-  'restliToolsScala': "com.linkedin.pegasus:restli-tools-scala_${scalaMajorVersion}:${pegasusVersion}"
+  'restliToolsScala': "com.linkedin.pegasus:restli-tools-scala_${scalaMajorVersion}:${pegasusVersion}",
+  'testng': 'org.testng:testng:6.4',
+  'commonsIo': 'commons-io:commons-io:1.4'
 ]
 
 subprojects {
