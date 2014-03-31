@@ -72,6 +72,12 @@ class PegasusProject(val project: Project) extends Pegasus {
    )
 }
 
+case class DataTemplateCompilationException(source: Option[File], message: String, atLine: Option[Int], column: Option[Int]) extends FeedbackProvidedException {
+  def line = atLine.map(_.asInstanceOf[java.lang.Integer]).orNull
+  def position = column.map(_.asInstanceOf[java.lang.Integer]).orNull
+  def sourceName = source.map(_.getAbsolutePath).orNull
+}
+
 trait Pegasus extends Restli {
   val restliPegasusPdscDir = SettingKey[File]("restli-pegasus-pdsc-dir")
   val restliPegasusResolverPath = TaskKey[String](
@@ -152,16 +158,11 @@ trait Pegasus extends Restli {
       } catch {
         case e: java.io.IOException => {
           e.getMessage match {
-            case JsonParseExceptionRegExp =>
-              throw e
-              // After moving the sbt plugin into a separate project, we are unable to throw play exceptions
-              // because we no longer depend on play.  We will need to catch and rethrow JsonParseExceptionRegExp at the
-              // play layer instead.  Here's how we should rethrow:
-              // case JsonParseExceptionRegExp(source, line, column) =>
-              //   throw play.PlayExceptions.AssetCompilationException(
-              //     Some(file(source)),
-              //     "JSON parse error in " + source + ": line: "  +  line.toInt + ", column:  " + column.toInt,
-              //     Option(line.toInt), Option(column.toInt))
+            case JsonParseExceptionRegExp(source, line, column) =>
+              throw DataTemplateCompilationException(
+                Some(file(source)),
+                "JSON parse error in " + source + ": line: "  +  line.toInt + ", column:  " + column.toInt,
+                Option(line.toInt), Option(column.toInt))
             case _ =>
               throw new MessageOnlyException("Restli generator error" + "Error message: " + e.getMessage)
           }
