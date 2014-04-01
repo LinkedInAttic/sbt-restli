@@ -13,9 +13,10 @@ examples/*/target/
 examples/*/*/target/
 examples/*/project/project
 examples/*/data-template/src/main/codegen
+
 test/*/target
 test/*/*/target
 test/*/project/project
 test/*/data-template/src/main/codegen
+test/*/data-template/mainGeneratedAvroSchema
 test/*/artifacts
-

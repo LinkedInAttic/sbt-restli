@@ -38,6 +38,7 @@ project.ext.externalDependency = [
   'restliGenerator': "com.linkedin.pegasus:generator:${pegasusVersion}",
   'restliTools': "com.linkedin.pegasus:restli-tools:${pegasusVersion}",
   'restliToolsScala': "com.linkedin.pegasus:restli-tools-scala_${scalaMajorVersion}:${pegasusVersion}",
+  'dataAvroGenerator': "com.linkedin.pegasus:data-avro-generator:${pegasusVersion}",
   'testng': 'org.testng:testng:6.4',
   'commonsIo': 'commons-io:commons-io:1.4'
 ]
@@ -71,7 +72,7 @@ subprojects {
     repositories {
       mavenLocal()
       mavenCentral()
-  
+
       /*
        * Typesafe's repo is a mess.  They have mixed maven (.pom) and ivy into the same tree.  Some artifacts
        * are only published as maven, others only as ivy.  Looks like there are even some that are published as both.
@@ -83,7 +84,7 @@ subprojects {
       maven {
         url "http://repo.typesafe.com/typesafe/releases/"
       }
-  
+
       ivy {
         url "http://repo.typesafe.com/typesafe/releases/"
         layout "pattern", {
@@ -94,49 +95,49 @@ subprojects {
         }
       }
     }
-  
+
     task sourcesJar(type: Jar, dependsOn: classes) {
       from sourceSets.main.allSource
       classifier = 'sources'
     }
-  
+
     task javadocJar(type: Jar, dependsOn: javadoc) {
       from javadoc.destinationDir
       classifier = 'javadoc'
     }
-  
+
     artifacts {
       archives jar
       archives sourcesJar
       archives javadocJar
     }
-  
+
     signing {
       required = { gradle.taskGraph.hasTask("uploadArchives") }
       sign configurations.archives
     }
-  
+
     uploadArchives {
       repositories {
         mavenDeployer {
           beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
-  
+
           repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
             authentication(userName: sonatypeUsername, password: sonatypePassword)
           }
-          
+
           pom.project {
             name project.name
             packaging 'jar'
             description 'SBT plugin for rest.li that provides all the build tasks required to build rest.li applications.'
             url 'http://github.com/linkedin/rest.li-sbt-plugin'
-  
+
             scm {
               url 'git@github.com:linkedin/rest.li-sbt-plugin.git'
               connection 'scm:git:git@github.com:linkedin/rest.li-sbt-plugin.git'
               developerConnection 'scm:git:git@github.com:linkedin/rest.li-sbt-plugin.git'
             }
-  
+
             licenses {
               license {
                 name 'The Apache Software License, Version 2.0'

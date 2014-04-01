@@ -31,6 +31,7 @@ object ClientServerTestBuild extends Build with restli.All {
 
   lazy val dataTemplate = Project("data-template", file("data-template"))
     .compilePegasus()
+    .generateAvroSchema()
     .settings(baseSettings: _*)
     .settings(libraryDependencies += "com.linkedin.pegasus" % "data" % restliVersion)
 

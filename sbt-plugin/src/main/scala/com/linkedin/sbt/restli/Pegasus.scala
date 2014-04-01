@@ -120,8 +120,6 @@ trait Pegasus extends Restli {
   //transforms a Project to a PegasusProject if needed, i.e. when you call a method that exists only on PegasusProject
   implicit def projectToPegasusProject(project : Project) = new PegasusProject(project)
 
-  private val JsonParseExceptionRegExp = """(?s).*\[Source: (.*?); line: (\d*), column: (\d*)\].*?""".r
-
   val pegasusGenerator = Def.task {
     val s = streams.value
     val sourceDir = restliPegasusPdscDir.value

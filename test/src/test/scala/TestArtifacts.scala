@@ -21,12 +21,17 @@ class TestArtifacts {
   def testDataTemplateIvy() = {
     val ivyModule = loadIvyForProject("data-template")
 
-    Assert.assertTrue(findConf(ivyModule, "dataModel").isDefined)
     Assert.assertTrue(findConf(ivyModule, "dataTemplate").isDefined)
+    Assert.assertTrue(findConf(ivyModule, "dataModel").isDefined)
+    Assert.assertTrue(findConf(ivyModule, "avroSchema").isDefined)
 
     val dataModelArtifactOpt = findArtifact(ivyModule, "data-template-dataModel")
     Assert.assertTrue(dataModelArtifactOpt.isDefined)
     Assert.assertEquals((dataModelArtifactOpt.get \ "@conf").text, "dataModel")
+
+    val avroSchemaArtifactOpt = findArtifact(ivyModule, "data-template-avroSchema")
+    Assert.assertTrue(avroSchemaArtifactOpt.isDefined)
+    Assert.assertEquals((avroSchemaArtifactOpt.get \ "@conf").text, "avroSchema")
   }
 
   @Test
@@ -40,6 +45,12 @@ class TestArtifacts {
   def testDataTemplateDataModelJar() = {
     val filenames = listFilesInJarForProject("data-template", Some("dataModel"))
     Assert.assertTrue(filenames.contains("com/linkedin/pegasus/example/Sample.pdsc"))
+  }
+
+  @Test
+  def testDataTemplateAvroSchemaJar() = {
+    val filenames = listFilesInJarForProject("data-template", Some("avroSchema"))
+    Assert.assertTrue(filenames.contains("com/linkedin/pegasus/example/Sample.avsc"))
   }
 
   @Test

@@ -32,5 +32,6 @@ dependencies {
   compile externalDependency.restliGenerator
   compile externalDependency.restliTools
   compile externalDependency.restliToolsScala
+  compile externalDependency.dataAvroGenerator
   compile files("${System.getProperty('java.home')}/../lib/tools.jar")
 }
