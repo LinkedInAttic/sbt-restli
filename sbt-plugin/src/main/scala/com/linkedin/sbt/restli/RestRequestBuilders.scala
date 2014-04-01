@@ -122,6 +122,9 @@ trait RestRequestBuilders extends Restli {
             s.log.error("Generated Java dir: " + generatedJavaDir)
             s.log.error("Generate data templates: " + generateDataTemplates)
             throw e
+        } finally {
+          previousDataTemplatesSystemProperty.foreach(System.setProperty("generator.rest.generate.datatemplates", _))
+          previousPackageSystemProperty.foreach(System.setProperty("generator.default.package", _))
         }
       }
       val generatedJavaFiles = generatedBuilder.getModifiedFiles.asScala.toSeq ++ generatedBuilder.getTargetFiles.asScala.toSeq
