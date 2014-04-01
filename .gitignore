@@ -9,8 +9,7 @@
 build/
 */build/
 out/
-example/target/
-example/*/target/
-example/project/project/target
-example/data-template/src/main/codegen
-
+examples/*/target/
+examples/*/*/target/
+examples/*/project/project
+examples/*/data-template/src/main/codegen

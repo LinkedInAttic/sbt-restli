@@ -47,6 +47,7 @@ clean {
   delete "clientserver" + File.separator + "project" + File.separator + "target"
   delete "clientserver" + File.separator + "project" + File.separator + "project" + File.separator + "target"
   delete "clientserver" + File.separator + "data-template" + File.separator + "target"
+  delete "clientserver" + File.separator + "data-template" + File.separator + "src" + File.separator + "main" + File.separator + "codegen"
   delete "clientserver" + File.separator + "rest" + File.separator + "target"
   delete "clientserver" + File.separator + "server" + File.separator + "target"
 }

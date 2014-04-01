@@ -1,14 +1,12 @@
 package com.linkedin.pegasus.restli.sbt.plugin.test
 
 import org.testng.Assert
-import org.testng.annotations.DataProvider
 import org.testng.annotations.Test
 import java.io.{FileInputStream, File}
 import org.apache.commons.io.FileUtils
 import scala.xml.{XML, Elem, Node}
 import java.util.{Collection=>JavaCollection}
 import scala.collection.JavaConverters._
-import scala.io.Source
 import java.util.zip.ZipInputStream
 
 /**
@@ -67,7 +65,7 @@ class TestArtifacts {
   @Test
   def testRestRestModelJar() = {
     val filenames = listFilesInJarForProject("rest", Some("restModel"))
-    Assert.assertTrue(filenames.contains("sample-com.linkedin.pegasus.example.client.samples.restspec.json"))
+    Assert.assertTrue(filenames.contains("client-server-com.linkedin.pegasus.example.client.samples.restspec.json"))
   }
 
   private def listFilesInJarForProject(projectName: String, conf: Option[String] = None): List[String] = {

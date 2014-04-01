@@ -32,6 +32,10 @@ class SamplesResource extends CollectionResourceTemplate[java.lang.Long, Sample]
   val builders = new SamplesBuilders
 
   override def get(key: java.lang.Long): Sample = {
+
+    // attempt to use builder to this resource, to verify we can handle this use case
+    builders.get()
+
     new Sample()
             .setMessage("Hello, Rest.li!")
             .setId(key)
