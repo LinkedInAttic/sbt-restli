@@ -75,6 +75,8 @@ import Keys._
  */
 object Example extends Build with restli.All {
 
+  val restliVersion = "1.15.4"
+
   val baseSettings = Seq(
     organization := "com.linkedin.pegasus.example",
     version := "0.0.1",
@@ -87,7 +89,7 @@ object Example extends Build with restli.All {
    */
   lazy val dataTemplate = Project("data-template", file("data-template"))
     .compilePegasus()
-    .settings(libraryDependencies += "com.linkedin.pegasus" % "data" % "1.13.4")
+    .settings(libraryDependencies += "com.linkedin.pegasus" % "data" % restliVersion)
     .settings(baseSettings: _*)
     // add any dependencies other data template modules, to depend on their .pdscs, here.
     // e.g. .settings(libraryDependencies += "{group}" % "{name}" % "{version}" % "dataTemplate")
@@ -100,7 +102,7 @@ object Example extends Build with restli.All {
   lazy val sampleServer = Project("sample-server", file("sample-server"))
     .dependsOn(dataTemplate)
     .aggregate(dataTemplate, rest)
-    .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-server" % "1.13.4")
+    .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-server" % restliVersion)
     .settings(baseSettings: _*)
     .compileRestspec(
       apiName = "sample",
@@ -125,7 +127,7 @@ object Example extends Build with restli.All {
   lazy val rest = Project("rest", file("rest"))
     .dependsOn(dataTemplate)
     .settings(baseSettings:_*)
-    .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-client" % "1.13.4")
+    .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-client" % restliVersion)
     .generateRequestBuilders(
       dataTemplateProject = dataTemplate
     )
