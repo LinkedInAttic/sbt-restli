@@ -23,6 +23,7 @@ import sbt.ConfigKey.configurationToKey
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 import java.io.File.pathSeparator
 import com.linkedin.pegasus.generator.PegasusDataTemplateGenerator
+import xsbti.{Maybe, Severity, Position, Problem}
 
 /**
  * Runs PegasusDataTemplateGenerator
@@ -70,12 +71,6 @@ class PegasusProject(val project: Project) extends Pegasus {
         pdscFiles pair rebase(restliPegasusPdscDir.value, "pegasus/")
       }
    )
-}
-
-case class DataTemplateCompilationException(source: Option[File], message: String, atLine: Option[Int], column: Option[Int]) extends FeedbackProvidedException {
-  def line = atLine.map(_.asInstanceOf[java.lang.Integer]).orNull
-  def position = column.map(_.asInstanceOf[java.lang.Integer]).orNull
-  def sourceName = source.map(_.getAbsolutePath).orNull
 }
 
 trait Pegasus extends Restli {
@@ -159,10 +154,11 @@ trait Pegasus extends Restli {
         case e: java.io.IOException => {
           e.getMessage match {
             case JsonParseExceptionRegExp(source, line, column) =>
-              throw DataTemplateCompilationException(
+              throw new RestliCompilationException(
                 Some(file(source)),
                 "JSON parse error in " + source + ": line: "  +  line.toInt + ", column:  " + column.toInt,
-                Option(line.toInt), Option(column.toInt))
+                Option(line.toInt), Option(column.toInt),
+                Severity.Error)
             case _ =>
               throw new MessageOnlyException("Restli generator error" + "Error message: " + e.getMessage)
           }
