@@ -10,39 +10,8 @@ just a `Project`) and put all source in the server project under an `app` direct
 
 Requirements
 ------------
-
 * Java 1.6+
-* Gradle 1.8+ (optional)
-
-Building from Source
---------------------
-
-To build from source and install as a snapshot in your local maven repo, clone this repo and build it:
-
-```sh
-./gradlew install
-```
-
-Maven artifacts will be written into `~/.m2/repository`.
-
-Once built, you'll need to remember to add resolvers to these repositories when you use the plugin in your sbt projects
-When following the below "usage" directions, remember to put this in your project/Build.scala:
-
-```scala
-val baseSettings = Seq(
-  resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
-)
-```
-
-and this in your `project/plugins.scala`:
-
-```scala
-unmanagedJars in Compile ~= {uj =>
-  Seq(Attributed.blank(file(System.getProperty("java.home").dropRight(3)+"lib/tools.jar"))) ++ uj
-}
-
-resolvers += "Local Maven Repository" at "file:///"+Path.userHome+"/.m2/repository"
-```
+* SBT 0.13+
 
 Getting Started
 ---------------
@@ -51,9 +20,15 @@ Getting Started
 
 In your project, create a file for plugin library dependencies `project/plugins.sbt` and add the following lines:
 
-    // add any resolvers required for the plugin library dependency here (see above if building from source)
+```scala
+// add any resolvers required for the plugin library dependency here (see above if building from source)
 
-    libraryDependencies += "com.linkedin.pegasus" %% "sbt-plugin" % "0.1.0"
+unmanagedJars in Compile ~= {uj =>
+  Seq(Attributed.blank(file(System.getProperty("java.home").dropRight(3)+"lib/tools.jar"))) ++ uj
+}
+
+libraryDependencies += "com.linkedin.pegasus" %% "sbt-plugin" % "0.1.0"
+```
 
 ### Importing sbt-plugin settings
 
@@ -145,4 +120,33 @@ An avro can be generated from any .pdsc file.  To enable this generation, add th
   lazy val dataTemplate = Project("data-template", file("data-template"))
     .generateAvroSchema()
     // ...
+```
+
+Building from Source
+--------------------
+
+* Java 1.6+
+* Gradle 1.8+ (optional)
+
+To build from source and install as a snapshot in your local maven repo, clone this repo and build it:
+
+```sh
+./gradlew install
+```
+
+Maven artifacts will be written into `~/.m2/repository`.
+
+Once built, you'll need to remember to add resolvers to these repositories when you use the plugin in your sbt projects
+When following the below "usage" directions, remember to put this in your project/Build.scala:
+
+```scala
+val baseSettings = Seq(
+  resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
+)
+```
+
+and this in your `project/plugins.scala`:
+
+```scala
+resolvers += "Local Maven Repository" at "file:///"+Path.userHome+"/.m2/repository"
 ```
