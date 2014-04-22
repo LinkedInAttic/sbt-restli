@@ -114,7 +114,8 @@ object Example extends Build with restli.All {
 Avro Schema Generation
 ----------------------
 
-An avro can be generated from any .pdsc file.  To enable this generation, add the `.generateAvroSchema()` to yoru dataTemplate project, e.g.:
+An avro schema (.avsc) can be generated from any .pdsc file.  To enable this generation, add the 
+`.generateAvroSchema()` to yoru dataTemplate project, e.g.:
 
 ```scala
   lazy val dataTemplate = Project("data-template", file("data-template"))
