@@ -76,12 +76,12 @@ object Example extends Build with restli.All {
    */
   lazy val sampleServer = Project("sample-server", file("sample-server"))
     .dependsOn(dataTemplate)
-    .aggregate(dataTemplate, rest)
+    .aggregate(dataTemplate, api)
     .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-server" % restliVersion)
     .settings(baseSettings: _*)
     .compileRestspec(
       apiName = "sample",
-      apiProject = rest,
+      apiProject = api,
       resourcePackages = List("com.linkedin.pegasus.example"), // change this to match the package name where your *Resource.scala files reside.
       dataTemplateProject = dataTemplate,
 
@@ -99,7 +99,7 @@ object Example extends Build with restli.All {
    * Files under the src/idl and src/snapshot directories must be checked in to source control.  They are the
    * API contract and are used to generate client bindings and perform compatibility checking.
    */
-  lazy val rest = Project("rest", file("rest"))
+  lazy val api = Project("api", file("api"))
     .dependsOn(dataTemplate)
     .settings(baseSettings:_*)
     .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-client" % restliVersion)
