@@ -16,7 +16,7 @@ import com.linkedin.data.template.SetMode;
  * A sample pegasus schema
  * 
  */
-@Generated(value = "com.linkedin.pegasus.generator.PegasusDataTemplateGenerator", comments = "LinkedIn Data Template. Generated from /home/jbetz/projects/restli-sbt-plugin/example/data-template/src/main/pegasus/com/linkedin/pegasus/example/Sample.pdsc.", date = "Thu Mar 27 15:06:39 PDT 2014")
+@Generated(value = "com.linkedin.pegasus.generator.PegasusDataTemplateGenerator", comments = "LinkedIn Data Template. Generated from /home/jbetz/projects/restli-sbt-plugin_trunk/restli-sbt-plugin/examples/quickstart/data-template/src/main/pegasus/com/linkedin/pegasus/example/Sample.pdsc.", date = "Tue Apr 29 09:35:52 PDT 2014")
 public class Sample
     extends RecordTemplate
 {
