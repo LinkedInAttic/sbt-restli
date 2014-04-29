@@ -50,7 +50,7 @@ import Keys._
  */
 object Example extends Build with restli.All {
 
-  val restliVersion = "1.15.4"
+  val restliVersion = "1.15.12"
 
   val baseSettings = Seq(
     organization := "com.linkedin.pegasus.example",
