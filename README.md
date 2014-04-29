@@ -27,7 +27,7 @@ unmanagedJars in Compile ~= {uj =>
   Seq(Attributed.blank(file(System.getProperty("java.home").dropRight(3)+"lib/tools.jar"))) ++ uj
 }
 
-libraryDependencies += "com.linkedin.pegasus" %% "sbt-plugin" % "0.1.0"
+libraryDependencies += "com.linkedin.pegasus" %% "sbt-plugin" % "0.1.4"
 ```
 
 ### Importing sbt-plugin settings
