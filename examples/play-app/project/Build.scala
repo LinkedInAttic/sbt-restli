@@ -52,6 +52,9 @@ object Example extends Build with restli.All {
     .dependsOn(dataTemplate)
     .aggregate(dataTemplate, api)
     .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-server" % restliVersion)
+    .settings(libraryDependencies += "com.linkedin.pegasus" % "restli-client" % restliVersion)
+    .settings(libraryDependencies += "org.scalatestplus" % "play_2.10" % "1.0.0" % "test")
+    .dependsOn(api % "test->compile")
     .settings(baseSettings: _*)
     .compileRestspec(
       apiName = "sample",
