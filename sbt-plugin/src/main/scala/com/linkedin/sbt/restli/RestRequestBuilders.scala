@@ -2,6 +2,7 @@ package com.linkedin.sbt.restli
 
 import sbt._
 import sbt.Keys._
+import com.linkedin.restli.internal.common.RestliVersion
 import com.linkedin.restli.tools.clientgen.RestRequestBuilderGenerator
 import scala.collection.JavaConverters._
 
@@ -112,7 +113,7 @@ trait RestRequestBuilders extends Restli {
       generatedJavaDir.mkdirs()
       val generatedBuilder = {
         try {
-          RestRequestBuilderGenerator.run(resolverPath, null, null, false, false,
+          RestRequestBuilderGenerator.run(resolverPath, null, null, false, RestliVersion.RESTLI_2_0_0, null,
             generatedJavaDir.getAbsolutePath, idlJsonFiles.map(_.getAbsolutePath).toArray)
         } catch {
           case e: Throwable =>
