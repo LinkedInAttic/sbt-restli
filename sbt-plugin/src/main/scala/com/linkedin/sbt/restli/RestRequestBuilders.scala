@@ -12,6 +12,8 @@ import scala.collection.JavaConverters._
  */
 class RestRequestBuilderGeneratorProject(val project : Project) extends RestRequestBuilders with Pegasus {
 
+  import RequestBuildersKeys._
+
   def generateRequestBuilders(dataTemplateProject: Project) = {
     project
       .settings(restliRequestBuildersArtifacts : _*)
@@ -29,7 +31,7 @@ class RestRequestBuilderGeneratorProject(val project : Project) extends RestRequ
         restliRequestBuildersIdlJsonInfoCache := streams.value.cacheDirectory / "idlgen.jsonfiles",
         restliRequestBuildersSnapshotJsonInfoCache := streams.value.cacheDirectory / "snapshot.jsonfiles",
 
-        restliRequestBuildersGeneratedJavaDir := target.value / "restspec_java",
+        restliRequestBuildersGeneratedJavaDir := (sourceManaged in Compile).value / "restspec_java",
 
         restliRequestBuildersGenerate in Compile := restliRequestBuildersGenerator.value,
 
@@ -38,13 +40,7 @@ class RestRequestBuilderGeneratorProject(val project : Project) extends RestRequ
     }
   }
 
-trait RestRequestBuilders extends Restli {
-
-  //transforms a Project to a RestspecProject if needed, i.e. when you call a method that exists only on RestspecProject
-  implicit def projectToRestRequestBuilderGeneratorProject(p : Project) = new RestRequestBuilderGeneratorProject(p)
-
-  val DefaultConfig = config("default").extend(Runtime).describedAs("Configuration for default artifacts.")
-
+object RequestBuildersKeys {
   val restliRequestBuildersGenerate = taskKey[Seq[File]]("Generates class files based on restspec files.")
   val restliRequestBuildersIdlPublishedJsonDir = settingKey[File]("The dir of JSON files published by the restli idl publisher, this is where the checked-in idl should reside")
   val restliRequestBuildersSnapshotPublishedJsonDir = settingKey[File]("The dir of JSON files published by the restli snapshot publisher, this is where the checked-in snapshots should reside")
@@ -55,6 +51,15 @@ trait RestRequestBuilders extends Restli {
   val restliRequestBuildersGenerateDatatemplates = settingKey[Boolean]("Sets generator.rest.generate.datatemplates")
   val restliRequestBuildersPackageRestClient = taskKey[File]("Produces a rest client jar containing Builder and restspec json files")
   val restliRequestBuildersPackageRestModel = taskKey[File]("Produces a rest model jar containing only restspec json files")
+}
+
+trait RestRequestBuilders extends Restli {
+  import RequestBuildersKeys._
+
+  //transforms a Project to a RestspecProject if needed, i.e. when you call a method that exists only on RestspecProject
+  implicit def projectToRestRequestBuilderGeneratorProject(p : Project) = new RestRequestBuilderGeneratorProject(p)
+
+  val DefaultConfig = config("default").extend(Runtime).describedAs("Configuration for default artifacts.")
 
   def restliRequestBuildersArtifacts = {
     def packageRestModelMappings = restliRequestBuildersIdlPublishedJsonDir.map( (d) => mappings(d, RestspecJsonFileGlobExpr) )

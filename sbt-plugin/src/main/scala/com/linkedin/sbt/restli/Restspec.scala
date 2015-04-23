@@ -45,6 +45,8 @@ class RestspecProject(val project : Project) extends Restspec with Pegasus {
   def compileRestspec(apiName: String, apiProject: Project, resourcePackages: List[String], dataTemplateProject: Project, compatMode: String = "equivalent") = {
     def pathFromDir(dir: sbt.File) = List(dir.getAbsolutePath)
 
+    import RequestBuildersKeys._
+
     project
     .settings(
       restliRestspecApiName := apiName,
@@ -72,8 +74,8 @@ class RestspecProject(val project : Project) extends Restspec with Pegasus {
       restLiRestspecPublish := restspecPublisher.value,
       restLiSnapshotPublish := snapshotPublisher.value,
 
-      compile in Compile in apiProject <<= (compile in Compile in apiProject) dependsOn restspecPublisher,
-      compile in Compile in apiProject <<= (compile in Compile in apiProject) dependsOn snapshotPublisher,
+      restliRequestBuildersPackageRestModel in apiProject <<= (restliRequestBuildersPackageRestModel in apiProject) dependsOn restspecPublisher,
+      restliRequestBuildersPackageRestModel in apiProject <<= (restliRequestBuildersPackageRestModel in apiProject) dependsOn snapshotPublisher,
 
       unmanagedSourceDirectories in Compile += restliRestspecGeneratedJsonDir.value,
       unmanagedSourceDirectories in Compile += restliSnapshotGeneratedJsonDir.value
