@@ -74,8 +74,7 @@ class RestspecProject(val project : Project) extends Restspec with Pegasus {
       restLiRestspecPublish := restspecPublisher.value,
       restLiSnapshotPublish := snapshotPublisher.value,
 
-      restliRequestBuildersPackageRestModel in apiProject <<= (restliRequestBuildersPackageRestModel in apiProject) dependsOn restspecPublisher,
-      restliRequestBuildersPackageRestModel in apiProject <<= (restliRequestBuildersPackageRestModel in apiProject) dependsOn snapshotPublisher,
+      restliPreRequestBuildersPackageRestModel in apiProject := { restLiRestspecPublish.value; restLiSnapshotPublish.value },
 
       unmanagedSourceDirectories in Compile += restliRestspecGeneratedJsonDir.value,
       unmanagedSourceDirectories in Compile += restliSnapshotGeneratedJsonDir.value

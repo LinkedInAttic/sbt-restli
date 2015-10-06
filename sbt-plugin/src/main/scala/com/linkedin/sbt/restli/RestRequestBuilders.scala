@@ -35,7 +35,12 @@ class RestRequestBuilderGeneratorProject(val project : Project) extends RestRequ
 
         restliRequestBuildersGenerate in Compile := restliRequestBuildersGenerator.value,
 
-        sourceGenerators in Compile <+= (restliRequestBuildersGenerate in Compile).task
+        sourceGenerators in Compile <+= (restliRequestBuildersGenerate in Compile).task,
+
+        // Hook up the restspec generation to this new PreRequestBuilders task to guarantee it's initialized
+        // regardless of sbt's initialization ordering (https://github.com/sbt/sbt/issues/2090)
+        restliRequestBuildersPackageRestModel <<= restliRequestBuildersPackageRestModel dependsOn restliPreRequestBuildersPackageRestModel,
+        restliPreRequestBuildersPackageRestModel <<= restliPreRequestBuildersPackageRestModel or Def.task {()}
       )
     }
   }
@@ -51,6 +56,7 @@ object RequestBuildersKeys {
   val restliRequestBuildersGenerateDatatemplates = settingKey[Boolean]("Sets generator.rest.generate.datatemplates")
   val restliRequestBuildersPackageRestClient = taskKey[File]("Produces a rest client jar containing Builder and restspec json files")
   val restliRequestBuildersPackageRestModel = taskKey[File]("Produces a rest model jar containing only restspec json files")
+  val restliPreRequestBuildersPackageRestModel = taskKey[Unit]("Task to hook up the restspec generation to guarantee ordering")
 }
 
 trait RestRequestBuilders extends Restli {
