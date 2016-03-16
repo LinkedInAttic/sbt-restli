@@ -17,13 +17,15 @@
 package com.linkedin.sbt.restli
 
 
-import sbt._
-import sbt.Keys._
-import sbt.ConfigKey.configurationToKey
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 import java.io.File.pathSeparator
+
 import com.linkedin.pegasus.generator.PegasusDataTemplateGenerator
-import xsbti.{Maybe, Severity, Position, Problem}
+import sbt.ConfigKey.configurationToKey
+import sbt.Keys._
+import sbt._
+import xsbti.Severity
+
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
 /**
  * Runs PegasusDataTemplateGenerator
@@ -144,7 +146,7 @@ trait Pegasus extends Restli {
       val generated = try {
         val pdscFiles = sourceFiles.map(_.getAbsolutePath())
         s.log.debug("found pdsc files: " + pdscFiles.toString)
-        PegasusDataTemplateGenerator.run(resolverPath, null, null, javaDir.getAbsolutePath, pdscFiles.toArray)
+        PegasusDataTemplateGenerator.run(resolverPath, null, true, javaDir.getAbsolutePath, pdscFiles.toArray)
       } catch {
         case e: java.io.IOException => {
           e.getMessage match {
