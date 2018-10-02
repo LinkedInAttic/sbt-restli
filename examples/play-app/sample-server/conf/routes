@@ -1,7 +1,0 @@
-GET     /*path                                com.linkedin.pegasus.play.PlayRestliServer.handler(path)
-POST    /*path                                com.linkedin.pegasus.play.PlayRestliServer.handler(path)
-PUT     /*path                                com.linkedin.pegasus.play.PlayRestliServer.handler(path)
-PATCH   /*path                                com.linkedin.pegasus.play.PlayRestliServer.handler(path)
-HEAD    /*path                                com.linkedin.pegasus.play.PlayRestliServer.handler(path)
-DELETE  /*path                                com.linkedin.pegasus.play.PlayRestliServer.handler(path)
-OPTIONS /*path                                com.linkedin.pegasus.play.PlayRestliServer.handler(path)
