@@ -13,22 +13,23 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package sbtrestli.util
+package com.linkedin.restli.tools.scala
+
+import java.lang.reflect.Method
+import java.util.{Collection => JCollection, Collections => JCollections, Set => JSet}
 
 import com.linkedin.restli.internal.server.model.ResourceModelEncoder.DocsProvider
-import java.lang.reflect.Method
-import scala.tools.nsc.doc.base.{LinkTo, LinkToMember, LinkToTpl, LinkToExternal, Tooltip}
-import scala.tools.nsc.doc.model.{MemberEntity, TemplateEntity, Def, DocTemplateEntity}
-import tools.nsc.doc.{DocFactory, Settings}
-import tools.nsc.reporters.ConsoleReporter
-import scala.tools.nsc.doc.base.comment._
-import java.util.{Collection => JCollection, Set => JSet, Collections => JCollections}
-import scala.collection.JavaConversions.collectionAsScalaIterable
-import org.slf4j.{LoggerFactory, Logger}
+import org.slf4j.{Logger, LoggerFactory}
 
+import scala.collection.JavaConverters._
+import scala.tools.nsc.doc.base.LinkTo
+import scala.tools.nsc.doc.base.comment._
+import scala.tools.nsc.doc.model.{Def, DocTemplateEntity, MemberEntity, TemplateEntity}
+import scala.tools.nsc.doc.{DocFactory, Settings}
+import scala.tools.nsc.reporters.ConsoleReporter
 
 /**
- * Scaladoc version of a rest.li DocProvider. Compatible with scala nsc 2.10.x.
+ * Scaladoc version of a rest.li DocProvider.
  */
 class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
   val log: Logger = LoggerFactory.getLogger(classOf[ScalaDocsProvider])
@@ -49,7 +50,7 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
       }
       val reporter = new ConsoleReporter(settings)
       val docFactory = new DocFactory(reporter, settings)
-      val filelist = if (files == null || files.size == 0) List() else collectionAsScalaIterable(files).toList
+      val filelist = if (files == null || files.size == 0) List() else files.asScala.toList
       val universe = docFactory.makeUniverse(Left(filelist))
       universe.map(_.rootPackage.asInstanceOf[DocTemplateEntity])
     }
@@ -182,12 +183,7 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
     comment.trim
   }
 
-  private def toDocString(linkTo:LinkTo):String = linkTo match {
-    case LinkToMember(mbr, tpl) => "" // unsupported
-    case LinkToTpl(tpl) => "" // unsupported
-    case LinkToExternal(string, url) => s"""<a href="${url}">${string}</a>"""
-    case Tooltip(name) => name
-  }
+  protected def toDocString(linkTo: LinkTo): String = Compat.toDocString(linkTo)
 
   private def toDocString(block: Block): String = block match {
     case Paragraph(inline) => s"<p>${toDocString(inline)}</p>"
