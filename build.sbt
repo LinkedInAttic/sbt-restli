@@ -5,7 +5,7 @@ val root = (project in file("."))
   .dependsOn(restliToolsScala)
   .settings(
     name := "sbt-restli",
-    version := "0.3.0",
+    version := "0.3.0-SNAPSHOT",
     organization := "com.linkedin.pegasus",
     crossSbtVersions := Seq("1.2.3", "0.13.17"),
     pegasusVersion := "24.0.2",
@@ -19,7 +19,7 @@ val root = (project in file("."))
 lazy val restliToolsScala = (project in file("restli-tools-scala"))
   .settings(
     name := "restli-tools-scala",
-    version := "24.0.2",
+    version := "0.3.0-SNAPSHOT",
     organization := "com.linkedin.pegasus",
     crossScalaVersions := Seq("2.10.7", "2.12.6"),
     // Do not remove this line or tests break. Sbt mangles the java.class.path system property unless forking is enabled :(
@@ -32,3 +32,5 @@ lazy val restliToolsScala = (project in file("restli-tools-scala"))
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
     )
   )
+
+scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
