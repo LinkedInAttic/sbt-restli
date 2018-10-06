@@ -13,6 +13,7 @@ val root = (project in file("."))
     buildInfoKeys += pegasusVersion,
     libraryDependencies ++= Seq(
       "com.linkedin.pegasus" % "generator" % pegasusVersion.value,
+      "com.linkedin.pegasus" % "restli-tools" % pegasusVersion.value,
     )
   )
 
