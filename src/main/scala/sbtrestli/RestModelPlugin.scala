@@ -22,7 +22,7 @@ object RestModelPlugin extends AutoPlugin {
       target in restModelGenerate :=
         baseDirectory.value / "src" / (Defaults.nameForSrc(configuration.value.name) + "GeneratedRest"),
 
-      cleanFiles in Defaults.ConfigGlobal += (target in restModelGenerate).value,
+      PluginCompat.cleanFilesSetting(restModelGenerate),
 
       runner in restModelGenerate := new ForkRun(ForkOptions(
         javaHome.value,

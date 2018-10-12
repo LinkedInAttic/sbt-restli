@@ -15,19 +15,26 @@ val root = (project in file("."))
     libraryDependencies ++= Seq(
       "com.linkedin.pegasus" % "generator" % pegasusVersion.value,
       "com.linkedin.pegasus" % "restli-tools" % pegasusVersion.value,
-      "com.linkedin.pegasus" %% "restli-tools-scala" % "0.3.0-SNAPSHOT",
-      {
-        val sbtV = (sbtBinaryVersion in pluginCrossBuild).value
-        val scalaV = (scalaBinaryVersion in update).value
+      "com.linkedin.pegasus" %% "restli-tools-scala" % "0.3.0-SNAPSHOT"
+    ),
+    libraryDependencies ++= {
+      val sbtV = (sbtBinaryVersion in pluginCrossBuild).value
+      val scalaV = (scalaBinaryVersion in update).value
 
-        val toolsV = sbtV match {
-          case "1.0" => "1.1.1"
-          case "0.13" => "1.0.1"
-        }
-
-        Defaults.sbtPluginExtra("org.scala-debugger" % "sbt-jdi-tools" % toolsV, sbtV, scalaV)
+      val toolsV = sbtV match {
+        case "1.0" => "1.1.1"
+        case "0.13" => "1.0.1"
       }
-    )
+
+      val tools = Defaults.sbtPluginExtra("org.scala-debugger" % "sbt-jdi-tools" % toolsV, sbtV, scalaV)
+      val log4j = if (sbtV == "0.13") Seq(
+        "org.apache.logging.log4j" % "log4j-api" % "2.8.1",
+        "org.apache.logging.log4j" % "log4j-core" % "2.8.1",
+        "org.apache.logging.log4j" % "log4j-slf4j-impl" % "2.8.1"
+      ) else Nil
+
+      log4j :+ tools
+    }
   )
 
 lazy val restliToolsScala = (project in file("restli-tools-scala"))

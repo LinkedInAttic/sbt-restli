@@ -4,6 +4,12 @@ import sbt._
 import Keys._
 
 object PluginCompat {
-  val watchSourcesSetting =
-    watchSources in Defaults.ConfigGlobal ++= (sourceDirectory.value ** includeFilter.value).get
+  def watchSourcesSetting(scope: Scoped) = {
+    watchSources in Defaults.ConfigGlobal ++=
+      ((sourceDirectory in scope).value ** (includeFilter in scope).value).get
+  }
+
+  def cleanFilesSetting(scope: Scoped) = {
+    cleanFilesTask in Defaults.ConfigGlobal += (target in scope).value
+  }
 }
