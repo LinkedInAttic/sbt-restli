@@ -1,15 +1,9 @@
 package sbtrestli.util
 
-import com.linkedin.pegasus.generator.GeneratorResult
-import com.linkedin.restli.internal.server.model.ResourceModelEncoder.DocsProvider
 import com.linkedin.restli.tools.idlcheck.{CompatibilityLevel, RestLiResourceModelCompatibilityChecker}
-import com.linkedin.restli.tools.idlgen.RestLiResourceModelExporter
-import com.linkedin.restli.tools.scala.ScalaDocsProvider
-import sbt.{File, Logger}
+import sbt.Logger
 
-import scala.collection.JavaConverters._
-
-object IdlCheckerGenerator extends CheckerGenerator {
+object IdlChecker extends RestModelChecker {
   override def name = "idl"
   override def fileGlob = "*.restspec.json"
 
@@ -44,12 +38,5 @@ object IdlCheckerGenerator extends CheckerGenerator {
         throw new Exception(allCheckMessageWithDirections)
       }
     }
-  }
-
-  override def generate(apiName: String, classpath: Seq[String], resourceSourcePaths: Seq[String],
-    resourcePackages: Seq[String], generatedJsonDir: File, resolverPath: String): GeneratorResult = {
-    val restliResourceModelExporter = new RestLiResourceModelExporter()
-    restliResourceModelExporter.export(apiName, classpath.toArray, resourceSourcePaths.toArray,
-      resourcePackages.toArray, null, generatedJsonDir.getAbsolutePath, List[DocsProvider](new ScalaDocsProvider(classpath.toArray)).asJava)
   }
 }

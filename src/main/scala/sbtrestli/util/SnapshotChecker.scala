@@ -1,17 +1,11 @@
 package sbtrestli.util
 
-import com.linkedin.pegasus.generator.GeneratorResult
-import com.linkedin.restli.internal.server.model.ResourceModelEncoder.DocsProvider
 import com.linkedin.restli.tools.compatibility.CompatibilityInfoMap
 import com.linkedin.restli.tools.idlcheck.CompatibilityLevel
-import com.linkedin.restli.tools.scala.ScalaDocsProvider
 import com.linkedin.restli.tools.snapshot.check.RestLiSnapshotCompatibilityChecker
-import com.linkedin.restli.tools.snapshot.gen.RestLiSnapshotExporter
-import sbt.{File, Logger}
+import sbt.Logger
 
-import scala.collection.JavaConverters._
-
-object SnapshotCheckerGenerator extends CheckerGenerator {
+object SnapshotChecker extends RestModelChecker {
   override def name = "snapshot"
   override def fileGlob = "*.snapshot.json"
 
@@ -52,13 +46,5 @@ object SnapshotCheckerGenerator extends CheckerGenerator {
         throw new Exception(allCheckMessageWithDirections)
       }
     }
-  }
-
-  override def generate(apiName: String, classpath: Seq[String], resourceSourcePaths: Seq[String],
-                        resourcePackages: Seq[String], generatedJsonDir: File, resolverPath: String): GeneratorResult = {
-    val restliResourceSnapshotExporter = new RestLiSnapshotExporter()
-    restliResourceSnapshotExporter.setResolverPath(resolverPath)
-    restliResourceSnapshotExporter.export(apiName, classpath.toArray, resourceSourcePaths.toArray,
-      resourcePackages.toArray, null, generatedJsonDir.getAbsolutePath, List[DocsProvider](new ScalaDocsProvider(classpath.toArray)).asJava)
   }
 }
