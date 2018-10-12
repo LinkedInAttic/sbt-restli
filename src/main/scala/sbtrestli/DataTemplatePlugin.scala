@@ -5,6 +5,7 @@ import java.io.File
 import com.linkedin.pegasus.generator.PegasusDataTemplateGenerator
 import sbt.Keys._
 import sbt._
+import sbt.plugins.JvmPlugin
 import sbtrestli.util.RestliCompilationException
 import xsbti.Severity
 
@@ -30,7 +31,8 @@ object DataTemplatePlugin extends AutoPlugin {
       target in dataTemplateGenerate :=
         baseDirectory.value / "src" / (Defaults.nameForSrc(configuration.value.name) + "GeneratedDataTemplate") / "java",
 
-      cleanFiles in Defaults.ConfigGlobal += (target in dataTemplateGenerate).value,
+      PluginCompat.watchSourcesSetting(dataTemplateGenerate),
+      PluginCompat.cleanFilesSetting(dataTemplateGenerate),
 
       dataTemplateGenerate := generate.value,
 
@@ -43,8 +45,7 @@ object DataTemplatePlugin extends AutoPlugin {
 
       packagedArtifacts in Defaults.ConfigGlobal ++= Classpaths.packaged(Seq(dataTemplatePackage)).value,
       artifacts in Defaults.ConfigGlobal ++= Classpaths.artifactDefs(Seq(dataTemplatePackage)).value
-    ) ++ inTask(dataTemplateGenerate)(PluginCompat.watchSourcesSetting) ++
-      Defaults.packageTaskSettings(dataTemplatePackage, Def.task {
+    ) ++ Defaults.packageTaskSettings(dataTemplatePackage, Def.task {
         val sourceDir = (sourceDirectory in dataTemplateGenerate).value
         val originalSources = (sources in dataTemplateGenerate).value
         val rebasedSources = originalSources pair Path.rebase(sourceDir, "pegasus/")
@@ -54,6 +55,8 @@ object DataTemplatePlugin extends AutoPlugin {
   }
 
   import autoImport._
+
+  override def requires: Plugins = JvmPlugin
 
   override def projectSettings: Seq[Def.Setting[_]] =
     inConfig(Compile)(dataTemplateSettings) ++ inConfig(Test)(dataTemplateSettings) ++ Seq(
