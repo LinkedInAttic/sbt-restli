@@ -24,7 +24,7 @@ object RestModelPlugin extends AutoPlugin {
 
     val restModelDefaults: Seq[Def.Setting[_]] = Seq(
       restModelPackages := Seq(),
-      restModelCompat := "backwards",
+      restModelCompat := "backwards"
     )
 
     val restModelSettings: Seq[Def.Setting[_]] = Seq(
