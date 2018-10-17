@@ -4,13 +4,13 @@ import java.io.File
 import java.net.URLClassLoader
 
 import com.linkedin.restli.tools.compatibility.CompatibilityInfoMap
-import com.linkedin.restli.tools.idlcheck.CompatibilityLevel
+import com.linkedin.restli.tools.idlcheck.{CompatibilityLevel, RestLiResourceModelCompatibilityChecker}
 import com.linkedin.restli.tools.idlgen.RestLiResourceModelExporterCmdLineApp
+import com.linkedin.restli.tools.snapshot.check.RestLiSnapshotCompatibilityChecker
 import com.linkedin.restli.tools.snapshot.gen.RestLiSnapshotExporterCmdLineApp
 import org.scaladebugger.SbtJdiTools
 import sbt.Keys._
 import sbt._
-import sbtrestli.util.{IdlChecker, RestModelChecker, SnapshotChecker}
 
 import scala.annotation.tailrec
 
@@ -132,6 +132,15 @@ object RestModelPlugin extends AutoPlugin {
   }
 
   private object IncompatibleChangesException extends Exception with FeedbackProvidedException
+
+  trait RestModelChecker {
+    def setResolverPath(resolverPath: String): Unit
+    def check(prevPath: String, curPath: String, compatLevel: CompatibilityLevel): Any
+    def getInfoMap: CompatibilityInfoMap
+  }
+
+  class SnapshotChecker extends RestLiSnapshotCompatibilityChecker with RestModelChecker
+  class IdlChecker extends RestLiResourceModelCompatibilityChecker with RestModelChecker
 
   private lazy val publish = Def.taskDyn {
     val apiProj = restModelApi.value

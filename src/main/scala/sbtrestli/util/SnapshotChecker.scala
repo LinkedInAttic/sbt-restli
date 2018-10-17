@@ -1,5 +1,0 @@
-package sbtrestli.util
-
-import com.linkedin.restli.tools.snapshot.check.RestLiSnapshotCompatibilityChecker
-
-class SnapshotChecker extends RestLiSnapshotCompatibilityChecker with RestModelChecker
