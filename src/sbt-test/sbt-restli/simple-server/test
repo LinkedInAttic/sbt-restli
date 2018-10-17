@@ -1,9 +1,19 @@
 > project server
-> restModelGenerate
+> restModelPublish
 
+# Test generated
 $ exists server/src/mainGeneratedRest/idl/com.example.fortune.fortunes.restspec.json
 $ exists server/src/mainGeneratedRest/snapshot/com.example.fortune.fortunes.snapshot.json
+
+# Test published
+$ exists api/src/main/idl/com.example.fortune.fortunes.restspec.json
+$ exists api/src/main/snapshot/com.example.fortune.fortunes.snapshot.json
+
+# Simulate "deleted" resource. Publish should fail in backwards compatible mode (default)
+$ copy-file api/src/main/idl/com.example.fortune.fortunes.restspec.json api/src/main/idl/com.example.fortune.copy.restspec.json
+-> restModelPublish
 
 > clean
 -$ exists server/src/mainGeneratedRest/idl/com.example.fortune.fortunes.restspec.json
 -$ exists server/src/mainGeneratedRest/snapshot/com.example.fortune.fortunes.snapshot.json
+
