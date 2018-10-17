@@ -89,14 +89,16 @@ object RestModelPlugin extends AutoPlugin {
 
     val scopedRunner = (runner in restModelGenerate).value
     val classpath = fullClasspath.value.files ++ localClasspath(getClass.getClassLoader)
+    val restModelTarget = (target in restModelGenerate).value
 
     Def.task {
-      // Clean target dir
-      IO.delete((target in restModelGenerate).value)
-      streams.value.log
+      streams.value.log.info(s"Compiling rest model to $restModelTarget ...")
 
-      scopedRunner.run(classOf[RestLiResourceModelExporterCmdLineApp].getName, classpath, idlGeneratorArgs, streams.value.log)
-      scopedRunner.run(classOf[RestLiSnapshotExporterCmdLineApp].getName, classpath, snapshotGeneratorArgs, streams.value.log)
+      // Clean target dir
+      IO.delete(restModelTarget)
+
+      scopedRunner.run(classOf[RestLiResourceModelExporterCmdLineApp].getName, classpath, idlGeneratorArgs, Logger.Null)
+      scopedRunner.run(classOf[RestLiSnapshotExporterCmdLineApp].getName, classpath, snapshotGeneratorArgs, Logger.Null)
     }
   }
 
@@ -129,7 +131,7 @@ object RestModelPlugin extends AutoPlugin {
     compatibilityInfoMap.addAll(checker.getInfoMap)
   }
 
-  object IncompatibleChangesException extends Exception with FeedbackProvidedException
+  private object IncompatibleChangesException extends Exception with FeedbackProvidedException
 
   private lazy val publish = Def.taskDyn {
     val apiProj = restModelApi.value
@@ -138,7 +140,7 @@ object RestModelPlugin extends AutoPlugin {
     val log = streams.value.log
 
     Def.task {
-      log.info(s"Running rest model compatibility checker (compat level: '$compatLevel').")
+      log.info(s"Running rest model compatibility tests (compat level: '$compatLevel') ...")
 
       val targetDir = (sourceDirectory in apiProj).value
 
@@ -155,7 +157,7 @@ object RestModelPlugin extends AutoPlugin {
       checkFiles(snapshotFilePairs, snapshotChecker, compatibilityInfoMap, resPath, compatLevel)
 
       if (compatibilityInfoMap.isEquivalent) {
-        log.info("Rest model is equivalent.")
+        log.info("Rest model is equivalent: not publishing.")
       } else {
         val summary = compatibilityInfoMap.createSummary()
 
