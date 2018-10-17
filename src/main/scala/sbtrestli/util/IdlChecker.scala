@@ -1,5 +1,0 @@
-package sbtrestli.util
-
-import com.linkedin.restli.tools.idlcheck.RestLiResourceModelCompatibilityChecker
-
-class IdlChecker extends RestLiResourceModelCompatibilityChecker with RestModelChecker
