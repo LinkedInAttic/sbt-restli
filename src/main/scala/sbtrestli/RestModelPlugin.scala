@@ -104,8 +104,8 @@ object RestModelPlugin extends AutoPlugin {
   }
 
   private def fileMappings(inputDir: File, outputDir: File, fileFilter: FileFilter): Seq[(File, File)] = {
-    val inputFiles = (inputDir ** fileFilter).get.view
-    val outputFiles = (outputDir ** fileFilter).get.view
+    val inputFiles = (inputDir * fileFilter).get
+    val outputFiles = (outputDir * fileFilter).get
 
     val allFiles = (inputFiles ++ outputFiles).map(_.getName).toSet
 
