@@ -11,8 +11,8 @@ import scala.collection.JavaConverters._
 
 object DataTemplatePlugin extends AutoPlugin {
   object autoImport {
-    val dataTemplateGenerate = taskKey[Seq[File]]("Compiles DataTemplate data-schemas into java source files.")
-    val dataTemplatePackage = taskKey[File]("Packages DataTemplate data-templates into *-data-template.jar")
+    val dataTemplateGenerate = taskKey[Seq[File]]("Compiles Pegasus data-schemas into java source files.")
+    val dataTemplatePackage = taskKey[File]("Packages Pegasus data-templates into *-data-template.jar")
 
     val dataTemplateSettings: Seq[Def.Setting[_]] = Seq(
       includeFilter in dataTemplateGenerate := "*.pdsc",
