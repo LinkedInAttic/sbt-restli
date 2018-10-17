@@ -23,6 +23,7 @@ object RestModelPlugin extends AutoPlugin {
     val restModelPublish = taskKey[Unit]("Validates and publishes idl and snapshot files to the API project.")
 
     val restModelDefaults: Seq[Def.Setting[_]] = Seq(
+      restModelApi := thisProjectRef.value,
       restModelPackages := Seq(),
       restModelCompat := "backwards"
     )

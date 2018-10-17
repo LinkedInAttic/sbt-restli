@@ -1,0 +1,12 @@
+> restModelPublish
+
+# Test generated data-templates
+$ exists src/mainGeneratedDataTemplate/java/com/example/fortune/Fortune.java
+
+# Test generated rest model
+$ exists src/mainGeneratedRest/idl/com.example.fortune.fortunes.restspec.json
+$ exists src/mainGeneratedRest/snapshot/com.example.fortune.fortunes.snapshot.json
+
+# Test published rest model
+$ exists src/main/idl/com.example.fortune.fortunes.restspec.json
+$ exists src/main/snapshot/com.example.fortune.fortunes.snapshot.json
