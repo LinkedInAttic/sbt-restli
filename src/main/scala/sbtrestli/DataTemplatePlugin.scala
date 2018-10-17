@@ -1,13 +1,11 @@
 package sbtrestli
 
-import java.io.File
+import java.io.{File, OutputStream, PrintStream}
 
 import com.linkedin.pegasus.generator.PegasusDataTemplateGenerator
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
-import sbtrestli.util.RestliCompilationException
-import xsbti.Severity
 
 import scala.collection.JavaConverters._
 
@@ -28,8 +26,7 @@ object DataTemplatePlugin extends AutoPlugin {
         includeFilter in dataTemplateGenerate,
         excludeFilter in dataTemplateGenerate).value,
 
-      target in dataTemplateGenerate :=
-        baseDirectory.value / "src" / (Defaults.nameForSrc(configuration.value.name) + "GeneratedDataTemplate") / "java",
+      target in dataTemplateGenerate := file(sourceDirectory.value + "GeneratedDataTemplate") / "java",
 
       PluginCompat.watchSourcesSetting(dataTemplateGenerate),
       PluginCompat.cleanFilesSetting(dataTemplateGenerate),
@@ -75,13 +72,28 @@ object DataTemplatePlugin extends AutoPlugin {
 //      publishArtifact in packageSrc := false,
     )
 
-  private val JsonParseExceptionRegExp = """(?s).*\[Source: (.*?); line: (\d*), column: (\d*)\].*?""".r
+  private object DataTemplateCompileException extends Exception with FeedbackProvidedException
+
+  private object NullOutputStream extends OutputStream {
+    override def write(i: Int): Unit = ()
+  }
 
   private lazy val generate = Def.task {
     val resolverFiles = (sourceDirectories in dataTemplateGenerate).value ++
       managedClasspath.value.files ++
       internalDependencyClasspath.value.files // adds in .pdscs from projects that this project .dependsOn
     val resolverPath = resolverFiles.map(_.getAbsolutePath).mkString(File.pathSeparator)
+    val pegasusSources = (sources in dataTemplateGenerate).value.map(_.getAbsolutePath).toArray
+    val targetDir = (target in dataTemplateGenerate).value.getAbsolutePath
+    val log = streams.value.log
+
+    val count = pegasusSources.length
+    val plural = if (count == 1) "" else "s"
+    log.info(s"Compiling $count Pegasus data-template$plural to $targetDir ...")
+
+    // Silence error messages
+    val stdErr = System.err
+    System.setErr(new PrintStream(NullOutputStream))
 
     val generatorResult = try {
       PegasusDataTemplateGenerator.run(
@@ -89,25 +101,16 @@ object DataTemplatePlugin extends AutoPlugin {
         null,
         baseDirectory.value.getAbsolutePath,
         false, // Class files included in "data-template" dependencies, no need to generate (I think)
-        (target in dataTemplateGenerate).value.getAbsolutePath,
-        (sources in dataTemplateGenerate).value.map(_.getAbsolutePath).toArray
+        targetDir,
+        pegasusSources
       )
     } catch {
-      case e: java.io.IOException => {
-        e.getMessage match {
-          case JsonParseExceptionRegExp(source, line, column) =>
-            throw new RestliCompilationException(
-              Some(file(source)),
-              "JSON parse error in " + source + ": line: "  +  line.toInt + ", column:  " + column.toInt,
-              Option(line.toInt), Option(column.toInt),
-              Severity.Error)
-          case _ =>
-            throw new MessageOnlyException("Restli generator error: " + e.getMessage)
-        }
-      }
-      case e: Throwable => {
-        throw e
-      }
+      case e: Throwable =>
+        log.error(e.getMessage)
+        throw DataTemplateCompileException
+    } finally {
+      // Reset error stream
+      System.setErr(stdErr)
     }
 
     generatorResult.getTargetFiles.asScala.toSeq
