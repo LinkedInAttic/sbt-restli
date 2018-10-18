@@ -18,13 +18,14 @@ object RestModelPlugin extends AutoPlugin {
   object autoImport {
     val restModelApi = settingKey[ProjectReference]("API project to publish idl and snapshot files to.")
     val restModelCompat = settingKey[String]("Rest model backwards compatibility level (defaults to equivalent).")
-    val restModelPackages = settingKey[Seq[String]]("List of packages containing Restli resources (optional, by default searches all packages in sourceDirectory).")
+    val restModelResourcePackages = settingKey[Seq[String]]("List of packages containing Restli resources (optional, by default searches all packages in sourceDirectory).")
     val restModelGenerate = taskKey[Unit]("Generates *.restspec.json & *.snapshot.json files from Restli resources.")
     val restModelPublish = taskKey[Unit]("Validates and publishes idl and snapshot files to the API project.")
+    val restModelPackage = taskKey[File]("Package idl files into *-rest-model.jar")
 
     val restModelDefaults: Seq[Def.Setting[_]] = Seq(
       restModelApi := thisProjectRef.value,
-      restModelPackages := Seq(),
+      restModelResourcePackages := Seq(),
       restModelCompat := "backwards"
     )
 
@@ -45,8 +46,21 @@ object RestModelPlugin extends AutoPlugin {
       )),
 
       restModelGenerate := generate.value,
-      restModelPublish := publish.dependsOn(restModelGenerate).triggeredBy(compile).value
-    )
+      restModelPublish := publish.dependsOn(restModelGenerate).triggeredBy(compile).value,
+
+      artifactClassifier in restModelPackage := Some("data-template"),
+      publishArtifact in restModelPackage := true,
+
+      packagedArtifacts in Defaults.ConfigGlobal ++= Classpaths.packaged(Seq(restModelPackage)).value,
+      artifacts in Defaults.ConfigGlobal ++= Classpaths.artifactDefs(Seq(restModelPackage)).value
+    ) ++ Defaults.packageTaskSettings(restModelPackage, Def.task {
+      // Generate idl files
+      restModelGenerate.value
+
+      val sourceDir = generatorTarget("idl").value
+      val originalSources = sourceDir * "*.restspec.json"
+      originalSources pair Path.rebase(sourceDir, "idl/")
+    })
   }
 
   import autoImport._
@@ -69,8 +83,8 @@ object RestModelPlugin extends AutoPlugin {
   private def generatorArgs(targetDir: String) = Def.task {
     val sourcepath = "-sourcepath" +: sourceDirectories.value.map(_.getAbsolutePath)
     val outdir = "-outdir" :: generatorTarget(targetDir).value.getAbsolutePath :: Nil
-    val resourcepackages = if (restModelPackages.value.nonEmpty) {
-      "-resourcepackages" +: restModelPackages.value
+    val resourcepackages = if (restModelResourcePackages.value.nonEmpty) {
+      "-resourcepackages" +: restModelResourcePackages.value
     } else Nil
 
     sourcepath ++ outdir ++ resourcepackages :+ "-loadAdditionalDocProviders"
