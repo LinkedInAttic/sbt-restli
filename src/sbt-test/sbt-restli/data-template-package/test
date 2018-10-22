@@ -1,4 +1,4 @@
-> dataTemplatePackage
+> restliSchemaPackage
 $ exists target/data-template-package-0.1.0-data-template.jar
 
 > unzipPackage

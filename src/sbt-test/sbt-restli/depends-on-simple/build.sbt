@@ -5,7 +5,7 @@ organization := "com.linkedin.pegasus"
 version := "0.1.0"
 
 lazy val fortune = (project in file("fortune-api"))
-  .enablePlugins(DataTemplatePlugin)
+  .enablePlugins(RestliSchemaPlugin)
 
 dependsOn(fortune)
-enablePlugins(DataTemplatePlugin)
+enablePlugins(RestliSchemaPlugin)
