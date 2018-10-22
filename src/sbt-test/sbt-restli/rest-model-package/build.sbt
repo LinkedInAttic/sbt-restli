@@ -1,5 +1,5 @@
 lazy val api = (project in file("api"))
-    .enablePlugins(DataTemplatePlugin)
+    .enablePlugins(RestliSchemaPlugin)
     .settings(
       name := "rest-model-package-api",
       organization := "com.linkedin.pegasus",
@@ -7,15 +7,15 @@ lazy val api = (project in file("api"))
     )
 
 lazy val server = (project in file("server"))
-  .enablePlugins(RestModelPlugin)
+  .enablePlugins(RestliModelPlugin)
   .dependsOn(api)
   .settings(
-    restModelApi := api,
+    restliModelApi := api,
     name := "rest-model-package-server",
     organization := "com.linkedin.pegasus",
     version := "0.1.0",
     unzipPackage := {
-      IO.unzip((restModelPackage in Compile).value, target.value / "rest-model")
+      IO.unzip((restliModelPackage in Compile).value, target.value / "rest-model")
     }
   )
 

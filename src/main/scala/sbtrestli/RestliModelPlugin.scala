@@ -14,28 +14,28 @@ import sbt._
 
 import scala.annotation.tailrec
 
-object RestModelPlugin extends AutoPlugin {
+object RestliModelPlugin extends AutoPlugin {
   object autoImport {
-    val restModelApi = settingKey[ProjectReference]("API project to publish idl and snapshot files to.")
-    val restModelCompat = settingKey[String]("Rest model backwards compatibility level (defaults to equivalent).")
-    val restModelResourcePackages = settingKey[Seq[String]]("List of packages containing Restli resources (optional, by default searches all packages in sourceDirectory).")
-    val restModelGenerate = taskKey[Unit]("Generates *.restspec.json & *.snapshot.json files from Restli resources.")
-    val restModelPublish = taskKey[Unit]("Validates and publishes idl and snapshot files to the API project.")
-    val restModelPackage = taskKey[File]("Package idl files into *-rest-model.jar")
+    val restliModelApi = settingKey[ProjectReference]("API project to publish idl and snapshot files to.")
+    val restliModelCompat = settingKey[String]("Rest model backwards compatibility level (defaults to equivalent).")
+    val restliModelResourcePackages = settingKey[Seq[String]]("List of packages containing Restli resources (optional, by default searches all packages in sourceDirectory).")
+    val restliModelGenerate = taskKey[Unit]("Generates *.restspec.json & *.snapshot.json files from Restli resources.")
+    val restliModelPublish = taskKey[Unit]("Validates and publishes idl and snapshot files to the API project.")
+    val restliModelPackage = taskKey[File]("Package idl files into *-rest-model.jar")
 
-    val restModelDefaults: Seq[Def.Setting[_]] = Seq(
-      restModelApi := thisProjectRef.value,
-      restModelResourcePackages := Seq(),
-      restModelCompat := "backwards"
+    val restliModelDefaults: Seq[Def.Setting[_]] = Seq(
+      restliModelApi := thisProjectRef.value,
+      restliModelResourcePackages := Seq(),
+      restliModelCompat := "backwards"
     )
 
-    val restModelSettings: Seq[Def.Setting[_]] = Seq(
-      target in restModelGenerate :=
+    val restliModelSettings: Seq[Def.Setting[_]] = Seq(
+      target in restliModelGenerate :=
         baseDirectory.value / "src" / (Defaults.nameForSrc(configuration.value.name) + "GeneratedRest"),
 
-      PluginCompat.cleanFilesSetting(restModelGenerate),
+      PluginCompat.cleanFilesSetting(restliModelGenerate),
 
-      runner in restModelGenerate := new ForkRun(ForkOptions(
+      runner in restliModelGenerate := new ForkRun(ForkOptions(
         javaHome.value,
         outputStrategy = Some(StdoutOutput),
         bootJars = Vector.empty, workingDirectory = Some(baseDirectory.value),
@@ -45,17 +45,17 @@ object RestModelPlugin extends AutoPlugin {
         envVars.value
       )),
 
-      restModelGenerate := generate.value,
-      restModelPublish := publish.dependsOn(restModelGenerate).triggeredBy(compile).value,
+      restliModelGenerate := generate.value,
+      restliModelPublish := publish.dependsOn(restliModelGenerate).triggeredBy(compile).value,
 
-      artifactClassifier in restModelPackage := Some("data-template"),
-      publishArtifact in restModelPackage := true,
+      artifactClassifier in restliModelPackage := Some("data-template"),
+      publishArtifact in restliModelPackage := true,
 
-      packagedArtifacts in Defaults.ConfigGlobal ++= Classpaths.packaged(Seq(restModelPackage)).value,
-      artifacts in Defaults.ConfigGlobal ++= Classpaths.artifactDefs(Seq(restModelPackage)).value
-    ) ++ Defaults.packageTaskSettings(restModelPackage, Def.task {
+      packagedArtifacts in Defaults.ConfigGlobal ++= Classpaths.packaged(Seq(restliModelPackage)).value,
+      artifacts in Defaults.ConfigGlobal ++= Classpaths.artifactDefs(Seq(restliModelPackage)).value
+    ) ++ Defaults.packageTaskSettings(restliModelPackage, Def.task {
       // Generate idl files
-      restModelGenerate.value
+      restliModelGenerate.value
 
       val sourceDir = generatorTarget("idl").value
       val originalSources = sourceDir * "*.restspec.json"
@@ -68,7 +68,7 @@ object RestModelPlugin extends AutoPlugin {
   override def requires: Plugins = SbtJdiTools
 
   override def projectSettings: Seq[Def.Setting[_]] =
-    inConfig(Compile)(restModelSettings) ++ inConfig(Test)(restModelSettings) ++ restModelDefaults ++ Seq(
+    inConfig(Compile)(restliModelSettings) ++ inConfig(Test)(restliModelSettings) ++ restliModelDefaults ++ Seq(
       libraryDependencies += "com.linkedin.pegasus" % "restli-server" % BuildInfo.pegasusVersion
     )
 
@@ -77,14 +77,14 @@ object RestModelPlugin extends AutoPlugin {
   }
 
   private def generatorTarget(targetDir: String) = Def.task {
-    (target in restModelGenerate).value / targetDir
+    (target in restliModelGenerate).value / targetDir
   }
 
   private def generatorArgs(targetDir: String) = Def.task {
     val sourcepath = "-sourcepath" +: sourceDirectories.value.map(_.getAbsolutePath)
     val outdir = "-outdir" :: generatorTarget(targetDir).value.getAbsolutePath :: Nil
-    val resourcepackages = if (restModelResourcePackages.value.nonEmpty) {
-      "-resourcepackages" +: restModelResourcePackages.value
+    val resourcepackages = if (restliModelResourcePackages.value.nonEmpty) {
+      "-resourcepackages" +: restliModelResourcePackages.value
     } else Nil
 
     sourcepath ++ outdir ++ resourcepackages :+ "-loadAdditionalDocProviders"
@@ -102,15 +102,15 @@ object RestModelPlugin extends AutoPlugin {
     val idlGeneratorArgs = generatorArgs("idl").value
     val snapshotGeneratorArgs = generatorArgs("snapshot").value
 
-    val scopedRunner = (runner in restModelGenerate).value
+    val scopedRunner = (runner in restliModelGenerate).value
     val classpath = fullClasspath.value.files ++ localClasspath(getClass.getClassLoader)
-    val restModelTarget = (target in restModelGenerate).value
+    val restliModelTarget = (target in restliModelGenerate).value
 
     Def.task {
-      streams.value.log.info(s"Compiling rest model to $restModelTarget ...")
+      streams.value.log.info(s"Compiling rest model to $restliModelTarget ...")
 
       // Clean target dir
-      IO.delete(restModelTarget)
+      IO.delete(restliModelTarget)
 
       scopedRunner.run(classOf[RestLiResourceModelExporterCmdLineApp].getName, classpath, idlGeneratorArgs, Logger.Null)
       scopedRunner.run(classOf[RestLiSnapshotExporterCmdLineApp].getName, classpath, snapshotGeneratorArgs, Logger.Null)
@@ -158,8 +158,8 @@ object RestModelPlugin extends AutoPlugin {
   class IdlChecker extends RestLiResourceModelCompatibilityChecker with RestModelChecker
 
   private lazy val publish = Def.taskDyn {
-    val apiProj = restModelApi.value
-    val compatLevel = CompatibilityLevel.valueOf(restModelCompat.value.toUpperCase())
+    val apiProj = restliModelApi.value
+    val compatLevel = CompatibilityLevel.valueOf(restliModelCompat.value.toUpperCase())
     val resPath = resolverPath.value
     val log = streams.value.log
 

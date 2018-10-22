@@ -1,4 +1,4 @@
-enablePlugins(RestModelPlugin, DataTemplatePlugin)
+enablePlugins(RestliModelPlugin, RestliSchemaPlugin)
 
 name := "server-self-api"
 
