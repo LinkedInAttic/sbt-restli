@@ -1,0 +1,6 @@
+> project server
+> compile
+> project api
+> compile
+$ exists api/src/mainGeneratedRest/java/com/example/fortune/FortunesRequestBuilders.java
+$ exists api/src/mainGeneratedRest/java/com/example/fortune/FortunesGetRequestBuilder.java
