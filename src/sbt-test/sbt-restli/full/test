@@ -1,0 +1,32 @@
+# Must publish idl files first so they are available for client binding generation
+# Client should NOT depend on server directly
+> project server
+> restliModelPublish
+
+# Data templates generated
+$ exists api/src/mainGeneratedDataTemplate/java/com/example/fortune/FortuneArray.java
+$ exists api/src/mainGeneratedDataTemplate/java/com/example/fortuneteller/FortuneTeller.java
+
+# Dependent templates generated in dependent project
+$ exists fortune-api/src/mainGeneratedDataTemplate/java/com/example/fortune/Fortune.java
+
+# Not regenerated in consuming project
+$ absent api/src/mainGeneratedDataTemplate/java/com/example/fortune/Fortune.java
+
+# Rest model generated
+$ exists server/src/mainGeneratedRest/idl/com.example.fortune.fortunes.restspec.json
+$ exists server/src/mainGeneratedRest/snapshot/com.example.fortune.fortunes.snapshot.json
+
+# Rest model published
+$ exists api/src/main/idl/com.example.fortune.fortunes.restspec.json
+$ exists api/src/main/snapshot/com.example.fortune.fortunes.snapshot.json
+
+# Build client (and client bindings)
+> project client
+> compile
+
+# Client bindings generated
+$ exists api/src/mainGeneratedRest/java/com/example/fortune/FortunesRequestBuilders.java
+$ exists api/src/mainGeneratedRest/java/com/example/fortune/FortunesGetRequestBuilder.java
+
+
