@@ -67,8 +67,8 @@ object RestliModelPlugin extends AutoPlugin {
 
   override def requires: Plugins = SbtJdiTools
 
-  override def projectSettings: Seq[Def.Setting[_]] =
-    inConfig(Compile)(restliModelSettings) ++ inConfig(Test)(restliModelSettings) ++ restliModelDefaults ++ Seq(
+  override def projectSettings: Seq[Def.Setting[_]] = restliModelDefaults ++
+    inConfig(Compile)(restliModelSettings) ++ inConfig(Test)(restliModelSettings) ++ Seq(
       libraryDependencies += "com.linkedin.pegasus" % "restli-server" % BuildInfo.pegasusVersion
     )
 
