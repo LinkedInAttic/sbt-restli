@@ -46,7 +46,7 @@ object RestliModelPlugin extends AutoPlugin {
       )),
 
       restliModelGenerate := generate.value,
-      restliModelPublish := publish.dependsOn(restliModelGenerate).triggeredBy(compile).value,
+      restliModelPublish := publish.dependsOn(restliModelGenerate).value,
 
       artifactClassifier in restliModelPackage := Some("data-template"),
       publishArtifact in restliModelPackage := true,

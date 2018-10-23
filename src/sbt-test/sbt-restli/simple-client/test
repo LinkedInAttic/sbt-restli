@@ -1,5 +1,5 @@
 > project server
-> compile
+> restliModelPublish
 > project api
 > compile
 $ exists api/src/mainGeneratedRest/java/com/example/fortune/FortunesRequestBuilders.java
