@@ -1,0 +1,2 @@
+> compile
+$ exists src/mainGeneratedAvroSchema/com/example/fortune/Fortune.avsc
