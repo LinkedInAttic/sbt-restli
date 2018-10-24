@@ -1,0 +1,10 @@
+# Need to publish idl files to api first
+> project server
+> restliModelPublish
+
+> project client
+> restliClientPackage
+> unzipPackage
+$ exists api/target/client/rest-client/com/example/fortune/FortunesGetRequestBuilder.class
+$ exists api/target/client/rest-client/com/example/fortune/FortunesRequestBuilders.class
+

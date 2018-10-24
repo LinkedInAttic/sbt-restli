@@ -14,6 +14,7 @@ object RestliClientPlugin extends AutoPlugin {
   object autoImport {
     val restliClientDefaultPackage = settingKey[String]("Default package for client bindings.")
     val restliClientGenerate = taskKey[Seq[File]]("Generates client bindings from API project.")
+    val restliClientPackage = taskKey[File]("Packages restli client bindings into *-rest-client.jar")
 
     val restliClientDefaults: Seq[Def.Setting[_]] = Seq(
       restliClientDefaultPackage := ""
@@ -41,8 +42,14 @@ object RestliClientPlugin extends AutoPlugin {
 
       sourceGenerators += restliClientGenerate.taskValue,
       managedSourceDirectories += (target in restliClientGenerate).value,
-      exportedProducts ++= (sourceDirectories in restliClientGenerate).value
-    )
+      exportedProducts ++= (sourceDirectories in restliClientGenerate).value,
+
+      artifactClassifier in restliClientPackage := Some("rest-client"),
+      publishArtifact in restliClientPackage := true,
+
+      packagedArtifacts in Defaults.ConfigGlobal ++= Classpaths.packaged(Seq(restliClientPackage)).value,
+      artifacts in Defaults.ConfigGlobal ++= Classpaths.artifactDefs(Seq(restliClientPackage)).value
+    ) ++ Defaults.packageTaskSettings(restliClientPackage, mappings in packageBin)
   }
 
   import autoImport._
