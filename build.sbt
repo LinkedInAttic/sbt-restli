@@ -15,6 +15,7 @@ val root = (project in file("."))
     libraryDependencies ++= Seq(
       "com.linkedin.pegasus" % "generator" % pegasusVersion.value,
       "com.linkedin.pegasus" % "restli-tools" % pegasusVersion.value,
+      "com.linkedin.pegasus" % "data-avro-generator" % pegasusVersion.value,
       "com.linkedin.pegasus" %% "restli-tools-scala" % "0.3.0-SNAPSHOT"
     ),
     libraryDependencies ++= {
