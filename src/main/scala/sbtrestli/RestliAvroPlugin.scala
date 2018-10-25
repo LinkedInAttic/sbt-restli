@@ -5,6 +5,7 @@ import java.io.File
 import com.linkedin.data.avro.generator.AvroSchemaGenerator
 import org.apache.logging.log4j.{Level => XLevel}
 import sbt.Keys._
+import sbt.plugins.JvmPlugin
 import sbt.{Def, _}
 
 object RestliAvroPlugin extends AutoPlugin {
@@ -44,6 +45,8 @@ object RestliAvroPlugin extends AutoPlugin {
   }
 
   import autoImport._
+
+  override def requires: Plugins = JvmPlugin
 
   override def projectSettings: Seq[Def.Setting[_]] =
     inConfig(Compile)(restliAvroSettings) ++ inConfig(Test)(restliAvroSettings)
