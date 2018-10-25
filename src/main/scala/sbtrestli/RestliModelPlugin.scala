@@ -8,6 +8,7 @@ import com.linkedin.restli.tools.idlcheck.{CompatibilityLevel, RestLiResourceMod
 import com.linkedin.restli.tools.idlgen.RestLiResourceModelExporterCmdLineApp
 import com.linkedin.restli.tools.snapshot.check.RestLiSnapshotCompatibilityChecker
 import com.linkedin.restli.tools.snapshot.gen.RestLiSnapshotExporterCmdLineApp
+import org.apache.logging.log4j.{Level => XLevel}
 import org.scaladebugger.SbtJdiTools
 import sbt.Keys._
 import sbt._
@@ -19,7 +20,7 @@ object RestliModelPlugin extends AutoPlugin {
     val restliModelApi = settingKey[ProjectReference]("API project to publish idl and snapshot files to.")
     val restliModelCompat = settingKey[String]("Rest model backwards compatibility level (defaults to equivalent).")
     val restliModelResourcePackages = settingKey[Seq[String]]("List of packages containing Restli resources (optional, by default searches all packages in sourceDirectory).")
-    val restliModelGenerate = taskKey[Unit]("Generates *.restspec.json & *.snapshot.json files from Restli resources.")
+    val restliModelGenerate = taskKey[Seq[File]]("Generates *.restspec.json & *.snapshot.json files from Restli resources.")
     val restliModelPublish = taskKey[Unit]("Validates and publishes idl and snapshot files to the API project.")
     val restliModelPackage = taskKey[File]("Package idl files into *-rest-model.jar")
 
@@ -72,8 +73,12 @@ object RestliModelPlugin extends AutoPlugin {
       libraryDependencies += "com.linkedin.pegasus" % "restli-server" % BuildInfo.pegasusVersion
     )
 
+  private lazy val resolverFiles = Def.task {
+    managedClasspath.value.files ++ internalDependencyClasspath.value.files
+  }
+
   private lazy val resolverPath = Def.task {
-    fullClasspath.value.files.map(_.getAbsolutePath).mkString(File.pathSeparator)
+    resolverFiles.value.map(_.getAbsolutePath).mkString(File.pathSeparator)
   }
 
   private def generatorTarget(targetDir: String) = Def.task {
@@ -98,6 +103,8 @@ object RestliModelPlugin extends AutoPlugin {
     case _ => localClasspath(cl.getParent, files)
   }
 
+  private def packageToDir(p: String) = p.replace(".", java.io.File.separator)
+
   private lazy val generate = Def.taskDyn {
     val idlGeneratorArgs = generatorArgs("idl").value
     val snapshotGeneratorArgs = generatorArgs("snapshot").value
@@ -106,14 +113,46 @@ object RestliModelPlugin extends AutoPlugin {
     val classpath = fullClasspath.value.files ++ localClasspath(getClass.getClassLoader)
     val restliModelTarget = (target in restliModelGenerate).value
 
+    val resourceProducts = products.value
+    val resourcePackages = restliModelResourcePackages.value
+    val classFiles = if (resourcePackages.nonEmpty) {
+      // Find class files corresponding to each resource package if specified
+      val resourceClassFiles = for {
+        targetDir <- resourceProducts
+        resourcePackage <- resourcePackages
+      } yield {
+        ((targetDir / packageToDir(resourcePackage)) ** "*.class").get
+      }
+      resourceClassFiles.flatten
+    } else {
+      // Otherwise we scan all class files
+      (resourceProducts ** "*.class").get
+    }
+    val dataSchemas = (resolverFiles.value ** "*.pdsc").get
+    val allSources = (classFiles ++ dataSchemas).toSet
+    val cacheDir = streams.value.cacheDirectory / "restliModelGenerate"
+    val log = streams.value.log
+
+    val idlTarget = generatorTarget("idl").value
+    val snapshotTarget = generatorTarget("snapshot").value
+
     Def.task {
-      streams.value.log.info(s"Compiling rest model to $restliModelTarget ...")
+      val cachedAction = FileFunction.cached(cacheDir, FilesInfo.lastModified, FilesInfo.exists){ _ =>
+        log.info(s"Compiling rest model to $restliModelTarget ...")
 
-      // Clean target dir
-      IO.delete(restliModelTarget)
+        // Clean target dir
+        IO.delete(restliModelTarget)
 
-      scopedRunner.run(classOf[RestLiResourceModelExporterCmdLineApp].getName, classpath, idlGeneratorArgs, Logger.Null)
-      scopedRunner.run(classOf[RestLiSnapshotExporterCmdLineApp].getName, classpath, snapshotGeneratorArgs, Logger.Null)
+        scopedRunner.run(classOf[RestLiResourceModelExporterCmdLineApp].getName, classpath, idlGeneratorArgs, Logger.Null)
+        scopedRunner.run(classOf[RestLiSnapshotExporterCmdLineApp].getName, classpath, snapshotGeneratorArgs, Logger.Null)
+
+        val idlFiles = (idlTarget * "*.restspec.json").get
+        val snapshotFiles = (snapshotTarget * "*.snapshot.json").get
+
+        (idlFiles ++ snapshotFiles).toSet
+      }
+
+      cachedAction(allSources).toSeq
     }
   }
 
@@ -162,42 +201,48 @@ object RestliModelPlugin extends AutoPlugin {
     val compatLevel = CompatibilityLevel.valueOf(restliModelCompat.value.toUpperCase())
     val resPath = resolverPath.value
     val log = streams.value.log
+    val cacheDir = streams.value.cacheDirectory / "restliModelPublish"
 
     Def.task {
-      log.info(s"Running rest model compatibility tests (compat level: '$compatLevel') ...")
-
       val targetDir = (sourceDirectory in apiProj).value
-
       val idlFilePairs = fileMappings(generatorTarget("idl").value, targetDir / "idl", "*.restspec.json")
       val snapshotFilePairs = fileMappings(generatorTarget("snapshot").value, targetDir / "snapshot", "*.snapshot.json")
 
-      val idlChecker = new IdlChecker()
-      val snapshotChecker = new SnapshotChecker()
+      val cachedAction = FileFunction.cached(cacheDir, FilesInfo.lastModified, FilesInfo.lastModified) { _ =>
+        log.info(s"Running rest model compatibility tests (compat level: '$compatLevel') ...")
 
-      val compatibilityInfoMap = new CompatibilityInfoMap
+        val idlChecker = new IdlChecker()
+        val snapshotChecker = new SnapshotChecker()
 
-      // Only validate existence of idl files, and do full check for snapshot files (snapshots are a superset of idl files).
-      checkFiles(missingFiles(idlFilePairs), idlChecker, compatibilityInfoMap, resPath, compatLevel)
-      checkFiles(snapshotFilePairs, snapshotChecker, compatibilityInfoMap, resPath, compatLevel)
+        val compatibilityInfoMap = new CompatibilityInfoMap
 
-      if (compatibilityInfoMap.isEquivalent) {
-        log.info("Rest model is equivalent: not publishing.")
-      } else {
-        val summary = compatibilityInfoMap.createSummary()
+        // Only validate existence of idl files, and do full check for snapshot files (snapshots are a superset of idl files).
+        checkFiles(missingFiles(idlFilePairs), idlChecker, compatibilityInfoMap, resPath, compatLevel)
+        checkFiles(snapshotFilePairs, snapshotChecker, compatibilityInfoMap, resPath, compatLevel)
 
-        if (compatibilityInfoMap.isCompatible(compatLevel)) {
-          val apiProjectName = (name in apiProj).value
-          val apiProjectDir = (baseDirectory in apiProj).value.getAbsolutePath
-
-          log.info(summary)
-          log.info(s"Publishing rest model to API project ($apiProjectName, $apiProjectDir) ...")
-
-          IO.copy(idlFilePairs ++ snapshotFilePairs)
+        if (compatibilityInfoMap.isEquivalent) {
+          log.info("Rest model is equivalent: not publishing.")
+          (idlFilePairs ++ snapshotFilePairs).map(_._2).toSet
         } else {
-          log.error(summary)
-          throw IncompatibleChangesException
+          val summary = compatibilityInfoMap.createSummary()
+
+          if (compatibilityInfoMap.isCompatible(compatLevel)) {
+            val apiProjectName = (name in apiProj).value
+            val apiProjectDir = (baseDirectory in apiProj).value.getAbsolutePath
+
+            log.info(summary)
+            log.info(s"Publishing rest model to API project ($apiProjectName, $apiProjectDir) ...")
+
+            IO.copy(idlFilePairs ++ snapshotFilePairs)
+          } else {
+            log.error(summary)
+            throw IncompatibleChangesException
+          }
         }
       }
+
+      val allSources = (idlFilePairs ++ snapshotFilePairs).map(_._1).toSet
+      cachedAction(allSources).toSeq
     }
   }
 }
