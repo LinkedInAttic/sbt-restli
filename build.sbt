@@ -2,7 +2,7 @@ val pegasusVersion = settingKey[String]("Restli / Pegasus version number")
 
 ThisBuild / pegasusVersion := "24.0.2"
 
-val root = (project in file("."))
+lazy val sbtRestli = (project in file("sbt-restli"))
   .enablePlugins(SbtPlugin, BuildInfoPlugin)
   .dependsOn(restliToolsScala)
   .settings(
@@ -12,6 +12,7 @@ val root = (project in file("."))
     crossSbtVersions := Seq("1.2.3", "0.13.17"),
     buildInfoPackage := "sbtrestli",
     buildInfoKeys += pegasusVersion,
+    scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     libraryDependencies ++= Seq(
       "com.linkedin.pegasus" % "generator" % pegasusVersion.value,
       "com.linkedin.pegasus" % "restli-tools" % pegasusVersion.value,
@@ -54,5 +55,3 @@ lazy val restliToolsScala = (project in file("restli-tools-scala"))
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
     )
   )
-
-scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
