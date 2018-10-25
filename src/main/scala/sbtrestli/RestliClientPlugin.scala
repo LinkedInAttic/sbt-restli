@@ -4,6 +4,7 @@ import java.io.File
 
 import com.linkedin.restli.internal.common.RestliVersion
 import com.linkedin.restli.tools.clientgen.RestRequestBuilderGenerator
+import org.apache.logging.log4j.{Level => XLevel}
 import sbt.Keys._
 import sbt.plugins.JvmPlugin
 import sbt.{Def, _}
@@ -66,8 +67,12 @@ object RestliClientPlugin extends AutoPlugin {
       managedClasspath.value.files ++
       internalDependencyClasspath.value.files
     val resolverPath = resolverFiles.map(_.getAbsolutePath).mkString(File.pathSeparator)
+    val targetDir = (target in restliClientGenerate).value
+    val log = streams.value.log
 
-    (target in restliClientGenerate).value.mkdirs()
+    PluginCompat.setLogLevel(classOf[RestRequestBuilderGenerator].getName, XLevel.WARN)
+
+    targetDir.mkdirs()
     val generatorResult = RestRequestBuilderGenerator.run(
       resolverPath,
       restliClientDefaultPackage.value,
@@ -76,9 +81,16 @@ object RestliClientPlugin extends AutoPlugin {
       false,
       RestliVersion.RESTLI_2_0_0,
       null,
-      (target in restliClientGenerate).value.getAbsolutePath,
+      targetDir.getAbsolutePath,
       (sources in restliClientGenerate).value.map(_.getAbsolutePath).toArray
     )
+
+    // RestRequestBuilderGenerator does internal caching. Only print message if files were generated
+    val count = generatorResult.getModifiedFiles.size
+    if (count > 0) {
+      val plural = if (count == 1) "" else "s"
+      log.info(s"Generated $count rest request builder$plural in $targetDir")
+    }
 
     generatorResult.getTargetFiles.asScala.toSeq
   }

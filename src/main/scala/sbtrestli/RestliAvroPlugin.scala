@@ -3,8 +3,9 @@ package sbtrestli
 import java.io.File
 
 import com.linkedin.data.avro.generator.AvroSchemaGenerator
-import sbt.{Def, _}
+import org.apache.logging.log4j.{Level => XLevel}
 import sbt.Keys._
+import sbt.{Def, _}
 
 object RestliAvroPlugin extends AutoPlugin {
   object autoImport {
@@ -55,10 +56,7 @@ object RestliAvroPlugin extends AutoPlugin {
     val targetDir = (target in restliAvroGenerate).value
     val sourceFiles = (sources in restliAvroGenerate).value.map(_.getAbsolutePath).toArray
 
-
-    val count = sourceFiles.length
-    val plural = if (count == 1) "" else "s"
-    streams.value.log.info(s"Compiling $count Avro data-schema$plural to $targetDir ...")
+    PluginCompat.setLogLevel(classOf[AvroSchemaGenerator].getName, XLevel.INFO)
 
     AvroSchemaGenerator.run(resolverPath, null, false, targetDir.getAbsolutePath, sourceFiles)
 

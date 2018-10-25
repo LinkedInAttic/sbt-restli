@@ -3,6 +3,7 @@ package sbtrestli
 import java.io.{File, OutputStream, PrintStream}
 
 import com.linkedin.pegasus.generator.PegasusDataTemplateGenerator
+import org.apache.logging.log4j.{Level => XLevel}
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
@@ -78,13 +79,11 @@ object RestliSchemaPlugin extends AutoPlugin {
     val targetDir = (target in restliSchemaGenerate).value.getAbsolutePath
     val log = streams.value.log
 
-    val count = pegasusSources.length
-    val plural = if (count == 1) "" else "s"
-    log.info(s"Compiling $count Pegasus data-template$plural to $targetDir ...")
-
     // Silence error messages
     val stdErr = System.err
     System.setErr(new PrintStream(NullOutputStream))
+
+    PluginCompat.setLogLevel(classOf[PegasusDataTemplateGenerator].getName, XLevel.WARN)
 
     val generatorResult = try {
       PegasusDataTemplateGenerator.run(
@@ -102,6 +101,13 @@ object RestliSchemaPlugin extends AutoPlugin {
     } finally {
       // Reset error stream
       System.setErr(stdErr)
+    }
+
+    // PegasusDataTemplateGenerator does internal caching. Only print message if files were generated
+    val count = generatorResult.getModifiedFiles.size
+    if (count > 0) {
+      val plural = if (count == 1) "" else "s"
+      log.info(s"Generated $count Pegasus data-template$plural in $targetDir")
     }
 
     generatorResult.getTargetFiles.asScala.toSeq
