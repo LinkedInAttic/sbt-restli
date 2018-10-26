@@ -40,7 +40,7 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
     root = if(files.size() == 0) {
       None
     } else {
-      val settings = new Settings(error => log.error(error))
+      val settings = new Settings(log.error)
       if(classpath == null) {
         settings.usejavacp.value = true
       } else {
@@ -94,11 +94,11 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
 
   }
 
-  private def filterDocTemplates(templates:List[TemplateEntity with MemberEntity]):List[DocTemplateEntity] = {
-    val matches = templates filter { template =>
-      template.isDocTemplate && template.isClass
+  private def filterDocTemplates(templates: List[TemplateEntity with MemberEntity]): List[DocTemplateEntity] = {
+    templates.collect {
+      case template if template.isDocTemplate && template.isClass =>
+        template.asInstanceOf[DocTemplateEntity]
     }
-    matches.map(_.asInstanceOf[DocTemplateEntity])
   }
 
   /** Searches the AST starting at "root" for the given class.  E.g. "com.example.Foo.class" is searched for
@@ -109,12 +109,11 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
       namespaceParts match {
         case Nil => None
         case namespacePart :: Nil => filterDocTemplates(docTemplate.templates).find(_.name == namespacePart)
-        case namespacePart :: remainingNamespaceParts => {
+        case namespacePart :: remainingNamespaceParts =>
           docTemplate.templates.find(_.name == namespacePart) match {
             case Some(childDocTemplate: DocTemplateEntity) => findAtPath(childDocTemplate, remainingNamespaceParts)
             case _ => None
           }
-        }
       }
     }
 
@@ -149,7 +148,7 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
         val bothHaveNoParams = templateValueParamSetCount == 0 && methodToFindParamCount == 0
 
         // true if the scala "Def" method has only one "valueParams" and it has the same number of parameters as the "Method".
-        val bothHaveSameParamCount = templateValueParamSetCount == 1 && templateMethod.valueParams(0).length == methodToFindParamCount
+        val bothHaveSameParamCount = templateValueParamSetCount == 1 && templateMethod.valueParams.head.length == methodToFindParamCount
 
         val haveMatchingParams = bothHaveNoParams || bothHaveSameParamCount
 
@@ -170,34 +169,30 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
   }
 
   private def toDocString(body: Body): String = {
-    val comment = body.blocks.map(toDocString(_)) mkString ""
-    comment.trim
+    body.blocks.map(toDocString).mkString.trim
   }
 
   protected def toDocString(linkTo: LinkTo): String = Compat.toDocString(linkTo)
 
   private def toDocString(block: Block): String = block match {
     case Paragraph(inline) => s"<p>${toDocString(inline)}</p>"
-    case Title(text, level) => s"<h${level}>${toDocString(text)}</h${level}>"
-    case Code(data) => s"<pre>${data}</pre>"
-    case UnorderedList(items) => {
+    case Title(text, level) => s"<h$level>${toDocString(text)}</h$level>"
+    case Code(data) => s"<pre>$data</pre>"
+    case UnorderedList(items) =>
       "<ul>" + items.map(i => s"<li>${toDocString(i)}</li>").mkString + "</ul>"
-    }
-    case OrderedList(items, style) => {
+    case OrderedList(items, _) =>
       "<ol>" + items.map(i => s"<li>${toDocString(i)}</li>").mkString + "</ol>"
-    }
-    case DefinitionList(items) => {
-      "<dl>" + items.map{ case (key, value) => s"<dt>${key}</dt><dd>${value}</dd>"}.mkString + "</dl>"
-    }
+    case DefinitionList(items) =>
+      "<dl>" + items.map{ case (key, value) => s"<dt>$key</dt><dd>$value</dd>"}.mkString + "</dl>"
     case HorizontalRule() => "<hr>"
   }
 
   // We're using html formatting here, like is done by rest.li already for javadoc
   private def toDocString(in: Inline): String = in match {
     case Bold(inline) => s"<b>${toDocString(inline)}</b>"
-    case Chain(items) => items.map(toDocString(_)).mkString
+    case Chain(items) => items.map(toDocString).mkString
     case Italic(inline) => s"<i>${toDocString(inline)}</i>"
-    case Link(target, inline) => s"""<a href="${target}">${toDocString(inline)}</a>"""
+    case Link(target, inline) => s"""<a href="$target">${toDocString(inline)}</a>"""
     case Monospace(inline) => s"<code>${toDocString(inline)}</code>"
     case Summary(inline) => toDocString(inline)
     case Superscript(inline) => s"<sup>${toDocString(inline)}</sup>"
