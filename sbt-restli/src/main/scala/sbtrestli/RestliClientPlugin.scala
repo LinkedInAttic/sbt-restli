@@ -58,9 +58,7 @@ object RestliClientPlugin extends AutoPlugin {
   override def requires: Plugins = JvmPlugin
 
   override def projectSettings: Seq[Def.Setting[_]] = restliClientDefaults ++
-    inConfig(Compile)(restliClientSettings) ++ inConfig(Test)(restliClientSettings) ++ Seq(
-    libraryDependencies += "com.linkedin.pegasus" % "restli-client" % BuildInfo.pegasusVersion
-  )
+    inConfig(Compile)(restliClientSettings) ++ inConfig(Test)(restliClientSettings)
 
   private lazy val generate = Def.task {
     val resolverFiles = sourceDirectories.value ++
