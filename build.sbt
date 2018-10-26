@@ -12,8 +12,7 @@ lazy val sbtRestli = (project in file("sbt-restli"))
     libraryDependencies ++= Seq(
       "com.linkedin.pegasus" % "generator" % pegasusVersion,
       "com.linkedin.pegasus" % "restli-tools" % pegasusVersion,
-      "com.linkedin.pegasus" % "data-avro-generator" % pegasusVersion,
-      "com.linkedin.pegasus" %% "restli-tools-scala" % "0.3.0-SNAPSHOT"
+      "com.linkedin.pegasus" % "data-avro-generator" % pegasusVersion
     ),
     libraryDependencies ++= {
       val sbtV = (sbtBinaryVersion in pluginCrossBuild).value
