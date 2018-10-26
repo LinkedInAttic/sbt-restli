@@ -36,7 +36,7 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
 
   private var root: Option[DocTemplateEntity] = None
 
-  def registerSourceFiles(files: JCollection[String]) {
+  override def registerSourceFiles(files: JCollection[String]) {
     root = if(files.size() == 0) {
       None
     } else {
@@ -54,29 +54,29 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
     }
   }
 
-  def supportedFileExtensions: JSet[String] = {
+  override def supportedFileExtensions: JSet[String] = {
     JCollections.singleton(".scala")
   }
 
-  def getClassDoc(resourceClass: Class[_]): String = {
+  override def getClassDoc(resourceClass: Class[_]): String = {
     findTemplate(resourceClass)
             .flatMap(_.comment)
             .map(toDocString)
             .orNull
   }
 
-  def getClassDeprecatedTag(resourceClass: Class[_]): String = null
+  override def getClassDeprecatedTag(resourceClass: Class[_]): String = null
 
-  def getMethodDoc(method: Method): String = {
+  override def getMethodDoc(method: Method): String = {
     findMethod(method)
             .flatMap(_.comment)
             .map(toDocString)
             .orNull
   }
 
-  def getMethodDeprecatedTag(method: Method): String = null
+  override def getMethodDeprecatedTag(method: Method): String = null
 
-  def getParamDoc(method: Method, name: String): String = {
+  override def getParamDoc(method: Method, name: String): String = {
     findMethod(method)
             .flatMap(_.comment)
             .flatMap(_.valueParams.get(name))
@@ -85,7 +85,7 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
 
   }
 
-  def getReturnDoc(method: Method): String = {
+  override def getReturnDoc(method: Method): String = {
     findMethod(method)
             .flatMap(_.comment)
             .flatMap(_.result)
