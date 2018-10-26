@@ -28,9 +28,7 @@ import scala.tools.nsc.doc.model.{Def, DocTemplateEntity, MemberEntity, Template
 import scala.tools.nsc.doc.{DocFactory, Settings}
 import scala.tools.nsc.reporters.ConsoleReporter
 
-/**
- * Scaladoc version of a rest.li DocProvider.
- */
+/** Scaladoc version of a rest.li DocsProvider. */
 class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
   val log: Logger = LoggerFactory.getLogger(classOf[ScalaDocsProvider])
 
@@ -103,11 +101,8 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
     matches.map(_.asInstanceOf[DocTemplateEntity])
   }
 
-  /**
-   * Searches the AST starting at "root" for the given class.  E.g. "com.example.Foo.class" is searched for
-   * by traversing first down the docTemplate for the template named "com", then "example", then finally "Foo".
-   * @param resourceClass
-   * @return
+  /** Searches the AST starting at "root" for the given class.  E.g. "com.example.Foo.class" is searched for
+   *  by traversing first down the docTemplate for the template named "com", then "example", then finally "Foo".
    */
   private def findTemplate(resourceClass: Class[_]): Option[DocTemplateEntity] = {
     def findAtPath(docTemplate: DocTemplateEntity, namespaceParts: List[String]): Option[DocTemplateEntity] = {
@@ -129,20 +124,16 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
     }
   }
 
-  /**
-   * Given a Method signature (where Method is a method from a JVM .class), finds the matching scala method "Def"
-   * (a AST type from the new scala compiler) so we can get it's scaladoc.
+  /** Given a Method signature (where Method is a method from a JVM .class), finds the matching scala method "Def"
+   *  (a AST type from the new scala compiler) so we can get it's scaladoc.
    *
-   * This can be a bit tricky given that scala "Def" can have represent all possible scala signatures, which
-   * includes stuff like:
+   *  This can be a bit tricky given that scala "Def" can have represent all possible scala signatures, which
+   *  includes stuff like:
    *
-   * def foo = {}
-   * def foo() = {}
-   * def foo(a: Int)(b: Int) = {}
-   * ...
-   *
-   * @param methodToFind
-   * @return
+   *  def foo = {}
+   *  def foo() = {}
+   *  def foo(a: Int)(b: Int) = {}
+   *  ...
    */
   private def findMethod(methodToFind: Method): Option[Def]  = {
     findTemplate(methodToFind.getDeclaringClass).flatMap { docTemplateForClass =>
