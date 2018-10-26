@@ -1,22 +1,18 @@
-val pegasusVersion = settingKey[String]("Restli / Pegasus version number")
-
-ThisBuild / pegasusVersion := "24.0.2"
+val pegasusVersion = "24.0.2"
 
 lazy val sbtRestli = (project in file("sbt-restli"))
-  .enablePlugins(SbtPlugin, BuildInfoPlugin)
+  .enablePlugins(SbtPlugin)
   .dependsOn(restliToolsScala)
   .settings(
     name := "sbt-restli",
     version := "0.3.0-SNAPSHOT",
     organization := "com.linkedin.pegasus",
     crossSbtVersions := Seq("1.2.3", "0.13.17"),
-    buildInfoPackage := "sbtrestli",
-    buildInfoKeys += pegasusVersion,
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     libraryDependencies ++= Seq(
-      "com.linkedin.pegasus" % "generator" % pegasusVersion.value,
-      "com.linkedin.pegasus" % "restli-tools" % pegasusVersion.value,
-      "com.linkedin.pegasus" % "data-avro-generator" % pegasusVersion.value,
+      "com.linkedin.pegasus" % "generator" % pegasusVersion,
+      "com.linkedin.pegasus" % "restli-tools" % pegasusVersion,
+      "com.linkedin.pegasus" % "data-avro-generator" % pegasusVersion,
       "com.linkedin.pegasus" %% "restli-tools-scala" % "0.3.0-SNAPSHOT"
     ),
     libraryDependencies ++= {
@@ -50,8 +46,8 @@ lazy val restliToolsScala = (project in file("restli-tools-scala"))
     libraryDependencies ++= Seq(
       "org.specs2" %% "specs2-core" % "3.9.4" % Test,
       "org.specs2" %% "specs2-matcher-extra" % "3.9.4" % Test,
-      "com.linkedin.pegasus" % "restli-int-test-api" % pegasusVersion.value % Test classifier "all",
-      "com.linkedin.pegasus" % "restli-server" % pegasusVersion.value,
+      "com.linkedin.pegasus" % "restli-int-test-api" % pegasusVersion % Test classifier "all",
+      "com.linkedin.pegasus" % "restli-server" % pegasusVersion,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
     )
   )

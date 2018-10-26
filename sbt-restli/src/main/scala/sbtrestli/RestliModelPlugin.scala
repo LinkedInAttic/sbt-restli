@@ -69,9 +69,7 @@ object RestliModelPlugin extends AutoPlugin {
   override def requires: Plugins = SbtJdiTools
 
   override def projectSettings: Seq[Def.Setting[_]] = restliModelDefaults ++
-    inConfig(Compile)(restliModelSettings) ++ inConfig(Test)(restliModelSettings) ++ Seq(
-      libraryDependencies += "com.linkedin.pegasus" % "restli-server" % BuildInfo.pegasusVersion
-    )
+    inConfig(Compile)(restliModelSettings) ++ inConfig(Test)(restliModelSettings)
 
   private lazy val resolverFiles = Def.task {
     managedClasspath.value.files ++ internalDependencyClasspath.value.files

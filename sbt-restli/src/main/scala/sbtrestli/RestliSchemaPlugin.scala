@@ -58,11 +58,7 @@ object RestliSchemaPlugin extends AutoPlugin {
   override def requires: Plugins = JvmPlugin
 
   override def projectSettings: Seq[Def.Setting[_]] =
-    inConfig(Compile)(restliSchemaSettings) ++ inConfig(Test)(restliSchemaSettings) ++ Seq(
-      // For @Nonnull annotation in generated sources
-      libraryDependencies += "com.google.code.findbugs" % "jsr305" % "3.0.+",
-      libraryDependencies += "com.linkedin.pegasus" % "data" % BuildInfo.pegasusVersion
-    )
+    inConfig(Compile)(restliSchemaSettings) ++ inConfig(Test)(restliSchemaSettings)
 
   private object DataTemplateCompileException extends Exception with FeedbackProvidedException
 
