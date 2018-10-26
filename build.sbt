@@ -1,4 +1,25 @@
 val pegasusVersion = "24.0.2"
+val specs2Version = "3.9.4"
+val log4jVersion = "2.8.1"
+
+// Adds java tools.jar to the classpath. Needed for javadoc within the resource model exporter (RestliModelPlugin).
+def toolsPluginDependency(sbtVersion: String, scalaVersion: String): ModuleID = {
+  val toolsV = sbtVersion match {
+    case "1.0" => "1.1.1"
+    case "0.13" => "1.0.1"
+  }
+
+  Defaults.sbtPluginExtra("org.scala-debugger" % "sbt-jdi-tools" % toolsV, sbtVersion, scalaVersion)
+}
+
+// Starting with sbt 1.0, log4j is included with sbt
+def log4jDependencies(sbtVersion: String): Seq[ModuleID] = {
+  if (sbtVersion == "0.13") Seq(
+    "org.apache.logging.log4j" % "log4j-api" % log4jVersion,
+    "org.apache.logging.log4j" % "log4j-core" % log4jVersion,
+    "org.apache.logging.log4j" % "log4j-slf4j-impl" % log4jVersion
+  ) else Nil
+}
 
 lazy val sbtRestli = (project in file("sbt-restli"))
   .enablePlugins(SbtPlugin)
@@ -15,20 +36,11 @@ lazy val sbtRestli = (project in file("sbt-restli"))
       "com.linkedin.pegasus" % "data-avro-generator" % pegasusVersion
     ),
     libraryDependencies ++= {
-      val sbtV = (sbtBinaryVersion in pluginCrossBuild).value
-      val scalaV = (scalaBinaryVersion in update).value
+      val sbtVersion = (sbtBinaryVersion in pluginCrossBuild).value
+      val scalaVersion = (scalaBinaryVersion in update).value
 
-      val toolsV = sbtV match {
-        case "1.0" => "1.1.1"
-        case "0.13" => "1.0.1"
-      }
-
-      val tools = Defaults.sbtPluginExtra("org.scala-debugger" % "sbt-jdi-tools" % toolsV, sbtV, scalaV)
-      val log4j = if (sbtV == "0.13") Seq(
-        "org.apache.logging.log4j" % "log4j-api" % "2.8.1",
-        "org.apache.logging.log4j" % "log4j-core" % "2.8.1",
-        "org.apache.logging.log4j" % "log4j-slf4j-impl" % "2.8.1"
-      ) else Nil
+      val tools = toolsPluginDependency(sbtVersion, scalaVersion)
+      val log4j = log4jDependencies(sbtVersion)
 
       log4j :+ tools
     }
@@ -43,8 +55,8 @@ lazy val restliToolsScala = (project in file("restli-tools-scala"))
     // Do not remove this line or tests break. Sbt mangles the java.class.path system property unless forking is enabled :(
     fork in Test := true,
     libraryDependencies ++= Seq(
-      "org.specs2" %% "specs2-core" % "3.9.4" % Test,
-      "org.specs2" %% "specs2-matcher-extra" % "3.9.4" % Test,
+      "org.specs2" %% "specs2-core" % specs2Version % Test,
+      "org.specs2" %% "specs2-matcher-extra" % specs2Version % Test,
       "com.linkedin.pegasus" % "restli-int-test-api" % pegasusVersion % Test classifier "all",
       "com.linkedin.pegasus" % "restli-server" % pegasusVersion,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
