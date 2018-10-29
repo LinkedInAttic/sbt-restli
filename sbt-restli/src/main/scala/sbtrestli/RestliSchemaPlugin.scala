@@ -75,7 +75,8 @@ object RestliSchemaPlugin extends AutoPlugin {
     val targetDir = (target in restliSchemaGenerate).value.getAbsolutePath
     val log = streams.value.log
 
-    // Silence error messages
+    // PegasusDataTemplateGenerator writes some errors to stderr before throwing them as exceptions.
+    // Disable stderr temporarily so errors aren't written twice.
     val stdErr = System.err
     System.setErr(new PrintStream(NullOutputStream))
 
