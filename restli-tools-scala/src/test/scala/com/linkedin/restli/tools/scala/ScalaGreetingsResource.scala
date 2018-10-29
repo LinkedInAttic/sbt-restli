@@ -34,6 +34,7 @@ import com.linkedin.restli.server.annotations.Action
  * @author Joe Betz
  */
 @RestLiCollection(name="scalaGreetings", namespace = "com.linkedin.restli.examples.scala.client")
+@deprecated("Resource deprecated", "1.0")
 class ScalaGreetingsResource extends CollectionResourceTemplate[java.lang.Long, Greeting]{
 
   /**
@@ -67,8 +68,9 @@ class ScalaGreetingsResource extends CollectionResourceTemplate[java.lang.Long, 
     "Hello"
   }
 
-  @Action(name="undocumentedAction")
-  def undocumentedAction(): String = {
+  @Action(name="deprecatedAction")
+  @deprecated("Deprecated action", "0.1")
+  def deprecatedAction(): String = {
     "Hello"
   }
 
