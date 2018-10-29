@@ -71,6 +71,17 @@ class ScalaGreetingsResource extends CollectionResourceTemplate[java.lang.Long, 
   def undocumentedAction(): String = {
     "Hello"
   }
+
+  /** Test table markdown
+    *
+    * |abc|defghi|jk|
+    * |:-:|-----------:|---|
+    * |bar|baz|foo|
+    */
+  @Action(name="tableAction")
+  def tableAction(): String = {
+    "Hello"
+  }
 }
 
 // To make sure we don't accidentally confuse objects and classes, add an object of the same name as the above class
