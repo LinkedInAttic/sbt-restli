@@ -8,7 +8,6 @@ import com.linkedin.restli.tools.idlcheck.{CompatibilityLevel, RestLiResourceMod
 import com.linkedin.restli.tools.idlgen.RestLiResourceModelExporterCmdLineApp
 import com.linkedin.restli.tools.snapshot.check.RestLiSnapshotCompatibilityChecker
 import com.linkedin.restli.tools.snapshot.gen.RestLiSnapshotExporterCmdLineApp
-import org.apache.logging.log4j.{Level => XLevel}
 import org.scaladebugger.SbtJdiTools
 import sbt.Keys._
 import sbt._

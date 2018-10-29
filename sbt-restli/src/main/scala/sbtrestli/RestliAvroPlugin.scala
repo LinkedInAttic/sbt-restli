@@ -5,8 +5,8 @@ import java.io.File
 import com.linkedin.data.avro.generator.AvroSchemaGenerator
 import org.apache.logging.log4j.{Level => XLevel}
 import sbt.Keys._
+import sbt._
 import sbt.plugins.JvmPlugin
-import sbt.{Def, _}
 
 object RestliAvroPlugin extends AutoPlugin {
   object autoImport {
