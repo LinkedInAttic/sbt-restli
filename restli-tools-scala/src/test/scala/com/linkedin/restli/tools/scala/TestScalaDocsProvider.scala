@@ -33,6 +33,7 @@ class TestScalaDocsProvider extends Specification with FileMatchers {
       an action                         $t5
       an actions first parameter        $t6
       an actions second parameter       $t7
+      a markdown table                  $t8
     """
 
   private val resource = "src/test/scala/com/linkedin/restli/tools/scala/ScalaGreetingsResource.scala"
@@ -50,7 +51,6 @@ class TestScalaDocsProvider extends Specification with FileMatchers {
   // ^ Fixed in scala 2.12. Since we still support 2.10 must test both variations.
   private def t2 = provider.getClassDoc(classOf[ScalaGreetingsResource]) mustEqual TestCompat.resourceTestString
 
-
   private def t3 = compareDocString(
     """<p>Now let's test some html formatted scaladoc.</p>
       |<p><b>Some html</b> with a <a href="http://rest.li">link</a>. x<sup>a</sup><sub>b</sub>.</p>
@@ -67,6 +67,11 @@ class TestScalaDocsProvider extends Specification with FileMatchers {
   private def t5 = compareDocString("<p>An action.</p>".stripMargin, provider.getMethodDoc(action))
   private def t6 = compareDocString("<p>provides a String</p>", provider.getParamDoc(action, "param1"))
   private def t7 = compareDocString("<p>provides a Boolean</p>", provider.getParamDoc(action, "param2"))
+
+  private val tableAction = classOf[ScalaGreetingsResource].getMethod("tableAction")
+
+  // Markdown table support added in 2.12.7
+  private def t8 = compareDocString(TestCompat.tableTestString, provider.getMethodDoc(tableAction))
 
   private def strip(string: String): String = {
     string.replaceAll("\n", "").trim

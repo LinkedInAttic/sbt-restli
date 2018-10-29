@@ -7,4 +7,7 @@ object TestCompat {
       |  case None => ()
       |}</pre><ul><li><p>unordered bullet 1</p></li><li><p>unordered bullet 2</p></li></ul><ol><li><p>ordered bullet 1</p></li><li><p>ordered bullet 2
       |</p></li></ol>""".stripMargin
+
+  val tableTestString: String =
+    """<p>Test table markdown</p><table><thead><tr><th align="center"><p>abc</p></th><th align="right"><p>defghi</p></th><th><p>jk</p></th></tr></thead><tbody><tr><td align="center"><p>bar</p></td><td align="right"><p>baz</p></td><td><p>foo</p></td></tr></tbody></table>"""
 }

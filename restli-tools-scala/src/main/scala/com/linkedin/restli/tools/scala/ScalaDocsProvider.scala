@@ -60,38 +60,36 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
 
   override def getClassDoc(resourceClass: Class[_]): String = {
     findTemplate(resourceClass)
-            .flatMap(_.comment)
-            .map(toDocString)
-            .orNull
+      .flatMap(_.comment)
+      .map(comment => DocStringCompat(comment.body))
+      .orNull
   }
 
   override def getClassDeprecatedTag(resourceClass: Class[_]): String = null
 
   override def getMethodDoc(method: Method): String = {
     findMethod(method)
-            .flatMap(_.comment)
-            .map(toDocString)
-            .orNull
+      .flatMap(_.comment)
+      .map(comment => DocStringCompat(comment.body))
+      .orNull
   }
 
   override def getMethodDeprecatedTag(method: Method): String = null
 
   override def getParamDoc(method: Method, name: String): String = {
     findMethod(method)
-            .flatMap(_.comment)
-            .flatMap(_.valueParams.get(name))
-            .map(toDocString)
-            .orNull
-
+      .flatMap(_.comment)
+      .flatMap(_.valueParams.get(name))
+      .map(DocStringCompat.apply)
+      .orNull
   }
 
   override def getReturnDoc(method: Method): String = {
     findMethod(method)
-            .flatMap(_.comment)
-            .flatMap(_.result)
-            .map(toDocString)
-            .orNull
-
+      .flatMap(_.comment)
+      .flatMap(_.result)
+      .map(DocStringCompat.apply)
+      .orNull
   }
 
   private def filterDocTemplates(templates: List[TemplateEntity with MemberEntity]): List[DocTemplateEntity] = {
@@ -162,46 +160,5 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
         (templateMethod.name == methodToFind.getName) && haveMatchingParams
       }
     }
-  }
-
-  private def toDocString(comment: Comment): String = {
-    toDocString(comment.body).trim
-  }
-
-  private def toDocString(body: Body): String = {
-    body.blocks.map(toDocString).mkString.trim
-  }
-
-  protected def toDocString(linkTo: LinkTo): String = Compat.toDocString(linkTo)
-
-  private def toDocString(block: Block): String = block match {
-    case Paragraph(inline) => s"<p>${toDocString(inline)}</p>"
-    case Title(text, level) => s"<h$level>${toDocString(text)}</h$level>"
-    case Code(data) => s"<pre>$data</pre>"
-    case UnorderedList(items) =>
-      "<ul>" + items.map(i => s"<li>${toDocString(i)}</li>").mkString + "</ul>"
-    case OrderedList(items, _) =>
-      "<ol>" + items.map(i => s"<li>${toDocString(i)}</li>").mkString + "</ol>"
-    case DefinitionList(items) =>
-      "<dl>" + items.map{ case (key, value) => s"<dt>$key</dt><dd>$value</dd>"}.mkString + "</dl>"
-    case HorizontalRule() => "<hr>"
-  }
-
-  // We're using html formatting here, like is done by rest.li already for javadoc
-  private def toDocString(in: Inline): String = in match {
-    case Bold(inline) => s"<b>${toDocString(inline)}</b>"
-    case Chain(items) => items.map(toDocString).mkString
-    case Italic(inline) => s"<i>${toDocString(inline)}</i>"
-    case Link(target, inline) => s"""<a href="$target">${toDocString(inline)}</a>"""
-    case Monospace(inline) => s"<code>${toDocString(inline)}</code>"
-    case Summary(inline) => toDocString(inline)
-    case Superscript(inline) => s"<sup>${toDocString(inline)}</sup>"
-    case Subscript(inline) => s"<sub>${toDocString(inline)}</sub>"
-    // we don't have a way to retain scaladoc (or javadoc) entity links, so we'll just include the fully qualified name
-    case EntityLink(title, linkTo) => s"""<a href="${toDocString(linkTo)}">${toDocString(title)}</a>"""
-    case Text(text) => text
-    // underlining is discouraged in html because it makes text resemble a link, so we'll go with em, a popular alternative
-    case Underline(inline) => s"<em>${toDocString(inline)}</em>"
-    case HtmlTag(rawHtml) => rawHtml
   }
 }
