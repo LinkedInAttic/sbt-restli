@@ -1,6 +1,6 @@
 package sbtrestli
 
-import java.io.{File, OutputStream, PrintStream}
+import java.io.{File, IOException, OutputStream, PrintStream}
 
 import com.linkedin.pegasus.generator.PegasusDataTemplateGenerator
 import org.apache.logging.log4j.{Level => XLevel}
@@ -92,7 +92,7 @@ object RestliSchemaPlugin extends AutoPlugin {
         pegasusSources
       )
     } catch {
-      case e: Throwable =>
+      case e: IOException =>
         log.error(e.getMessage)
         throw DataTemplateCompileException
     } finally {
