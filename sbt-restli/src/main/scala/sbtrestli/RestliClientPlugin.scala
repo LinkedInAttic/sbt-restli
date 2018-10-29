@@ -6,8 +6,8 @@ import com.linkedin.restli.internal.common.RestliVersion
 import com.linkedin.restli.tools.clientgen.RestRequestBuilderGenerator
 import org.apache.logging.log4j.{Level => XLevel}
 import sbt.Keys._
+import sbt._
 import sbt.plugins.JvmPlugin
-import sbt.{Def, _}
 
 import scala.collection.JavaConverters._
 
