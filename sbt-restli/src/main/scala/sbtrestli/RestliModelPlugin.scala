@@ -17,7 +17,7 @@ import scala.annotation.tailrec
 object RestliModelPlugin extends AutoPlugin {
   object autoImport {
     val restliModelApi = settingKey[ProjectReference]("API project to publish idl and snapshot files to.")
-    val restliModelCompat = settingKey[String]("Rest model backwards compatibility level (defaults to equivalent).")
+    val restliModelCompat = settingKey[String]("Rest model backwards compatibility level (defaults to backwards).")
     val restliModelResourcePackages = settingKey[Seq[String]]("List of packages containing Restli resources (optional, by default searches all packages in sourceDirectory).")
     val restliModelGenerate = taskKey[Seq[File]]("Generates *.restspec.json & *.snapshot.json files from Restli resources.")
     val restliModelPublish = taskKey[Unit]("Validates and publishes idl and snapshot files to the API project.")
