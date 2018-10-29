@@ -65,7 +65,12 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
       .orNull
   }
 
-  override def getClassDeprecatedTag(resourceClass: Class[_]): String = null
+  override def getClassDeprecatedTag(resourceClass: Class[_]): String = {
+    findTemplate(resourceClass)
+      .flatMap(_.deprecation)
+      .map(DocStringCompat.apply)
+      .orNull
+  }
 
   override def getMethodDoc(method: Method): String = {
     findMethod(method)
@@ -74,7 +79,12 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
       .orNull
   }
 
-  override def getMethodDeprecatedTag(method: Method): String = null
+  override def getMethodDeprecatedTag(method: Method): String = {
+    findMethod(method)
+      .flatMap(_.deprecation)
+      .map(DocStringCompat.apply)
+      .orNull
+  }
 
   override def getParamDoc(method: Method, name: String): String = {
     findMethod(method)

@@ -34,6 +34,8 @@ class TestScalaDocsProvider extends Specification with FileMatchers {
       an actions first parameter        $t6
       an actions second parameter       $t7
       a markdown table                  $t8
+      a deprecated resource tag         $t9
+      a deprecated action tag           $t10
     """
 
   private val resource = "src/test/scala/com/linkedin/restli/tools/scala/ScalaGreetingsResource.scala"
@@ -72,6 +74,12 @@ class TestScalaDocsProvider extends Specification with FileMatchers {
 
   // Markdown table support added in 2.12.7
   private def t8 = compareDocString(TestCompat.tableTestString, provider.getMethodDoc(tableAction))
+
+  private def t9 = compareDocString("<p><i>(Since version 1.0)</i> Resource deprecated</p>", provider.getClassDeprecatedTag(classOf[ScalaGreetingsResource]))
+
+  private val deprecatedAction = classOf[ScalaGreetingsResource].getMethod("deprecatedAction")
+
+  private def t10 = compareDocString("<p><i>(Since version 0.1)</i> Deprecated action</p>", provider.getMethodDeprecatedTag(deprecatedAction))
 
   private def strip(string: String): String = {
     string.replaceAll("\n", "").trim
