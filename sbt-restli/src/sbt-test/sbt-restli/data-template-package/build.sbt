@@ -1,6 +1,6 @@
 name := "data-template-package"
 
-organization := "com.linkedin.pegasus"
+organization := "com.linkedin.sbt-restli"
 
 version := "0.1.0"
 
