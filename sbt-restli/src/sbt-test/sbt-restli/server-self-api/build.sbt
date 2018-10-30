@@ -2,7 +2,7 @@ enablePlugins(RestliModelPlugin, RestliSchemaPlugin)
 
 name := "server-self-api"
 
-organization := "com.linkedin.pegasus"
+organization := "com.linkedin.sbt-restli"
 
 version := "0.1.0"
 
