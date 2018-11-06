@@ -9,6 +9,8 @@ import org.apache.logging.log4j.core.config.{AbstractConfiguration, LoggerConfig
 import org.apache.logging.log4j.{LogManager, Level => XLevel}
 
 object PluginCompat {
+  type PluginClassLoader = sbt.PluginManagement.PluginClassLoader
+
   def watchSourcesSetting(scope: Scoped) = {
     watchSources in Defaults.ConfigGlobal ++=
       ((sourceDirectory in scope).value ** (includeFilter in scope).value).get
