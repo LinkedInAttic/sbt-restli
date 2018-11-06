@@ -2,16 +2,6 @@ val pegasusVersion = "24.0.2"
 val specs2Version = "3.9.4"
 val log4jVersion = "2.8.1"
 
-// Adds java tools.jar to the classpath. Needed for javadoc within the resource model exporter (RestliModelPlugin).
-def toolsPluginDependency(sbtVersion: String, scalaVersion: String): ModuleID = {
-  val toolsV = sbtVersion match {
-    case "1.0" => "1.1.1"
-    case "0.13" => "1.0.1"
-  }
-
-  Defaults.sbtPluginExtra("org.scala-debugger" % "sbt-jdi-tools" % toolsV, sbtVersion, scalaVersion)
-}
-
 // Starting with sbt 1.0, log4j is included with sbt
 def log4jDependencies(sbtVersion: String): Seq[ModuleID] = {
   if (sbtVersion == "0.13") Seq(
@@ -35,15 +25,7 @@ lazy val sbtRestli = (project in file("sbt-restli"))
       "com.linkedin.pegasus" % "restli-tools" % pegasusVersion,
       "com.linkedin.pegasus" % "data-avro-generator" % pegasusVersion
     ),
-    libraryDependencies ++= {
-      val sbtVersion = (sbtBinaryVersion in pluginCrossBuild).value
-      val scalaVersion = (scalaBinaryVersion in update).value
-
-      val tools = toolsPluginDependency(sbtVersion, scalaVersion)
-      val log4j = log4jDependencies(sbtVersion)
-
-      log4j :+ tools
-    }
+    libraryDependencies ++= log4jDependencies((sbtBinaryVersion in pluginCrossBuild).value)
   )
 
 lazy val restliToolsScala = (project in file("restli-tools-scala"))

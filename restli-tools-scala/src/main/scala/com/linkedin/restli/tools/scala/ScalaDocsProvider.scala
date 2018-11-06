@@ -22,8 +22,6 @@ import com.linkedin.restli.internal.server.model.ResourceModelEncoder.DocsProvid
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.JavaConverters._
-import scala.tools.nsc.doc.base.LinkTo
-import scala.tools.nsc.doc.base.comment._
 import scala.tools.nsc.doc.model.{Def, DocTemplateEntity, MemberEntity, TemplateEntity}
 import scala.tools.nsc.doc.{DocFactory, Settings}
 import scala.tools.nsc.reporters.ConsoleReporter

@@ -8,6 +8,8 @@ import org.apache.logging.log4j.{LogManager, Level => XLevel}
 import sbt.internal.util.ConsoleAppender
 
 object PluginCompat {
+  type PluginClassLoader = sbt.internal.PluginManagement.PluginClassLoader
+
   def watchSourcesSetting(scope: Scoped) = {
     watchSources in Defaults.ConfigGlobal +=
       WatchSource((sourceDirectory in scope).value, (includeFilter in scope).value, (excludeFilter in scope).value)

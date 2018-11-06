@@ -1,18 +1,20 @@
 package sbtrestli
 
 import java.io.File
-import java.net.URLClassLoader
 
+import com.linkedin.restli.internal.server.model.ResourceModelEncoder.DocsProvider
 import com.linkedin.restli.tools.compatibility.CompatibilityInfoMap
 import com.linkedin.restli.tools.idlcheck.{CompatibilityLevel, RestLiResourceModelCompatibilityChecker}
-import com.linkedin.restli.tools.idlgen.RestLiResourceModelExporterCmdLineApp
+import com.linkedin.restli.tools.idlgen.RestLiResourceModelExporter
+import com.linkedin.restli.tools.scala.ScalaDocsProvider
 import com.linkedin.restli.tools.snapshot.check.RestLiSnapshotCompatibilityChecker
-import com.linkedin.restli.tools.snapshot.gen.RestLiSnapshotExporterCmdLineApp
-import org.scaladebugger.SbtJdiTools
+import com.linkedin.restli.tools.snapshot.gen.RestLiSnapshotExporter
+import org.apache.logging.log4j.{Level => XLevel}
 import sbt.Keys._
 import sbt._
+import sbt.plugins.JvmPlugin
 
-import scala.annotation.tailrec
+import scala.collection.JavaConverters._
 
 object RestliModelPlugin extends AutoPlugin {
   object autoImport {
@@ -35,16 +37,6 @@ object RestliModelPlugin extends AutoPlugin {
 
       PluginCompat.cleanFilesSetting(restliModelGenerate),
 
-      runner in restliModelGenerate := new ForkRun(ForkOptions(
-        javaHome.value,
-        outputStrategy = Some(StdoutOutput),
-        bootJars = Vector.empty, workingDirectory = Some(baseDirectory.value),
-        runJVMOptions = javaOptions.value.toVector :+
-          s"-Dgenerator.resolver.path=${resolverPath.value}",
-        connectInput = false,
-        envVars.value
-      )),
-
       restliModelGenerate := generate.value,
       restliModelPublish := publish.dependsOn(restliModelGenerate).value,
 
@@ -65,54 +57,63 @@ object RestliModelPlugin extends AutoPlugin {
 
   import autoImport._
 
-  override def requires: Plugins = SbtJdiTools
+  override def requires: Plugins = JvmPlugin
 
   override def projectSettings: Seq[Def.Setting[_]] = restliModelDefaults ++
     inConfig(Compile)(restliModelSettings) ++ inConfig(Test)(restliModelSettings)
 
   private lazy val resolverFiles = Def.task {
-    managedClasspath.value.files ++ internalDependencyClasspath.value.files
+    sourceDirectories.value ++ managedClasspath.value.files ++ internalDependencyClasspath.value.files
   }
 
   private lazy val resolverPath = Def.task {
     resolverFiles.value.map(_.getAbsolutePath).mkString(File.pathSeparator)
   }
 
+  private lazy val javaTools = Def.task {
+    val javaVersion = System.getProperty("java.specification.version")
+    val home = javaHome.value.getOrElse(file(System.getProperty("java.home")).getParentFile)
+    val jar =  home / "lib" / "tools.jar"
+
+    // Versions strings prior to java 9 start with major version number 1
+    if (javaVersion.startsWith("1.")) {
+      require(jar.exists(), s"lib/tools.jar not found in $home\n Configure home location using the javaHome setting.")
+      Some(jar.toURI.toURL)
+    } else {
+      // tools.jar not included in JDK 9+
+      // https://openjdk.java.net/jeps/220#Removed:-rt-jar-and-tools-jar
+      None
+    }
+  }
+
+  private lazy val generatorClasspath = Def.task {
+    fullClasspath.value.files.map(_.getAbsolutePath).toArray
+  }
+
+  private lazy val generatorClassLoader = Def.task {
+    val classLoader = getClass.getClassLoader.asInstanceOf[PluginCompat.PluginClassLoader]
+
+    // Add java tools.jar URL to plugin classloader instead of the new classloader since:
+    // 1) Tools.jar must be on the classpath of the classloader which loads Restli DocletDocsProvider.
+    // 2) RestLiClasspathScanner checks annotation types of loaded resources, and class types are only guaranteed
+    //    to be singletons (and thus have reference equality) if they are loaded by the same classloader.
+    classLoader.add(javaTools.value.toSeq)
+
+    ClasspathUtil.classLoaderFromClasspath(generatorClasspath.value, classLoader)
+  }
+
   private def generatorTarget(targetDir: String) = Def.task {
     (target in restliModelGenerate).value / targetDir
-  }
-
-  private def generatorArgs(targetDir: String) = Def.task {
-    val sourcepath = "-sourcepath" +: sourceDirectories.value.map(_.getAbsolutePath)
-    val outdir = "-outdir" :: generatorTarget(targetDir).value.getAbsolutePath :: Nil
-    val resourcepackages = if (restliModelResourcePackages.value.nonEmpty) {
-      "-resourcepackages" +: restliModelResourcePackages.value
-    } else Nil
-
-    sourcepath ++ outdir ++ resourcepackages :+ "-loadAdditionalDocProviders"
-  }
-
-  @tailrec
-  private def localClasspath(cl: ClassLoader, files: List[File] = Nil): List[File] = cl match {
-    case null => files
-    case classLoader: URLClassLoader =>
-      localClasspath(cl.getParent, files ::: classLoader.getURLs.map(url => new File(url.toURI)).toList)
-    case _ => localClasspath(cl.getParent, files)
   }
 
   private def packageToDir(p: String) = p.replace(".", java.io.File.separator)
 
   private lazy val generate = Def.taskDyn {
-    val idlGeneratorArgs = generatorArgs("idl").value
-    val snapshotGeneratorArgs = generatorArgs("snapshot").value
-
-    val scopedRunner = (runner in restliModelGenerate).value
-    val classpath = fullClasspath.value.files ++ localClasspath(getClass.getClassLoader)
-    val restliModelTarget = (target in restliModelGenerate).value
-
     val resourceProducts = products.value
-    val resourcePackages = restliModelResourcePackages.value
-    val classFiles = if (resourcePackages.nonEmpty) {
+    // Resource packages should be null if none are provided, so exporters will scan all packages for Restli annotations
+    val resourcePackages = Option(restliModelResourcePackages.value).filter(_.nonEmpty).map(_.toArray).orNull
+
+    val classFiles = if (resourcePackages != null) {
       // Find class files corresponding to each resource package if specified
       val resourceClassFiles = for {
         targetDir <- resourceProducts
@@ -125,13 +126,24 @@ object RestliModelPlugin extends AutoPlugin {
       // Otherwise we scan all class files
       (resourceProducts ** "*.class").get
     }
+
     val dataSchemas = (resolverFiles.value ** "*.pdsc").get
     val allSources = (classFiles ++ dataSchemas).toSet
     val cacheDir = streams.value.cacheDirectory / "restliModelGenerate"
     val log = streams.value.log
 
-    val idlTarget = generatorTarget("idl").value
-    val snapshotTarget = generatorTarget("snapshot").value
+    val sourceDirs = unmanagedSourceDirectories.value.map(_.getAbsolutePath).toArray
+    val classpath = generatorClasspath.value
+    val resPath = resolverPath.value
+
+    val restliModelTarget = (target in restliModelGenerate).value
+    val idlTarget = generatorTarget("idl").value.getAbsolutePath
+    val snapshotTarget = generatorTarget("snapshot").value.getAbsolutePath
+
+    val scalaDocsProvider: DocsProvider = new ScalaDocsProvider(resolverFiles.value.map(_.getAbsolutePath).toArray)
+    val docsProviders = List(scalaDocsProvider).asJava
+
+    val classLoader = generatorClassLoader.value
 
     Def.task {
       val cachedAction = FileFunction.cached(cacheDir, FilesInfo.lastModified, FilesInfo.exists){ _ =>
@@ -140,13 +152,36 @@ object RestliModelPlugin extends AutoPlugin {
         // Clean target dir
         IO.delete(restliModelTarget)
 
-        scopedRunner.run(classOf[RestLiResourceModelExporterCmdLineApp].getName, classpath, idlGeneratorArgs, Logger.Null)
-        scopedRunner.run(classOf[RestLiSnapshotExporterCmdLineApp].getName, classpath, snapshotGeneratorArgs, Logger.Null)
+        ClasspathUtil.withContextClassLoader(classLoader) {
+          val snapshotExporter = new RestLiSnapshotExporter()
+          val idlExporter = new RestLiResourceModelExporter()
 
-        val idlFiles = (idlTarget * "*.restspec.json").get
-        val snapshotFiles = (snapshotTarget * "*.snapshot.json").get
+          PluginCompat.setLogLevel(classOf[RestLiSnapshotExporter].getName, XLevel.WARN)
+          PluginCompat.setLogLevel(classOf[RestLiResourceModelExporter].getName, XLevel.WARN)
 
-        (idlFiles ++ snapshotFiles).toSet
+          snapshotExporter.setResolverPath(resPath)
+          val snapshotRes = snapshotExporter.export(
+            null,
+            classpath,
+            sourceDirs,
+            resourcePackages,
+            null,
+            snapshotTarget,
+            docsProviders
+          )
+
+          val idlRes = idlExporter.export(
+            null,
+            classpath,
+            sourceDirs,
+            resourcePackages,
+            null,
+            idlTarget,
+            docsProviders
+          )
+
+          (snapshotRes.getTargetFiles.asScala ++ idlRes.getTargetFiles.asScala).toSet
+        }
       }
 
       cachedAction(allSources).toSeq
