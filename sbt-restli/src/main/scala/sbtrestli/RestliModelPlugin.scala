@@ -32,8 +32,7 @@ object RestliModelPlugin extends AutoPlugin {
     )
 
     val restliModelSettings: Seq[Def.Setting[_]] = Seq(
-      target in restliModelGenerate :=
-        baseDirectory.value / "src" / (Defaults.nameForSrc(configuration.value.name) + "GeneratedRest"),
+      target in restliModelGenerate := file(sourceDirectory.value + "GeneratedRest"),
 
       PluginCompat.cleanFilesSetting(restliModelGenerate),
 
