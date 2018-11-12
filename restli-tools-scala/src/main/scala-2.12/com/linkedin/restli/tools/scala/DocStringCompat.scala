@@ -5,7 +5,7 @@ import scala.tools.nsc.doc.base.comment._
 
 object DocStringCompat extends DocString {
   override protected def linkToDocString: PartialFunction[LinkTo, String] = super.linkToDocString orElse {
-    case LinkToExternalTpl(name, baseUrl, _) => s"""<a href=$baseUrl>$name</a>"""
+    case LinkToExternalTpl(name, baseUrl, _) => s"""<a href="$baseUrl">$name</a>"""
   }
 
   override protected def blockDocString: PartialFunction[Block, String] = super.blockDocString orElse {
