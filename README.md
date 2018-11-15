@@ -2,6 +2,8 @@
 
 A collection of sbt plugins providing build integration for the [rest.li](https://github.com/linkedin/rest.li) REST framework.
 
+> **NOTE**: sbt-restli is built and tested against pegasus v24.0.2. While it should be compatible with other versions, no guarantees can be made.
+
 Setup
 -----
 
