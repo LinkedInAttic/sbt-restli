@@ -5,10 +5,9 @@ A collection of sbt plugins providing build integration for the [rest.li](https:
 Setup
 -----
 
-Install the plugins to your sbt project:
+Install the plugins to your sbt project in `project/plugins.sbt`:
 ```scala
-// project/plugins.sbt
-addSbtPlugin("com.linkedin.sbt-restli" % "sbt-restli" % "0.3.0")
+addSbtPlugin("com.linkedin.sbt-restli" % "sbt-restli" % "TODO")
 ```
 
 Usage
@@ -18,12 +17,11 @@ Sbt-restli is made up of 4 individual plugins.
 
 ### RestliSchemaPlugin
 
-The rest.li schema plugin compiles pegasus data-schemas (`.pdsc` files) into java data-templates.
+The rest.li schema plugin compiles pegasus data-schemas (`*.pdsc` files) into Java data-template classes.
 
-Apply the plugin to your project and place data-schemas in the `src/main/pegasus` directory.
+Apply the plugin to your project in `build.sbt` and place data-schemas in the `src/main/pegasus` directory.
 
 ```scala
-// build.sbt
 lazy val api = (project in file("api"))
   .enablePlugins(RestliSchemaPlugin)
   .settings(
@@ -38,12 +36,11 @@ lazy val api = (project in file("api"))
 
 The rest.li model plugin generates rest models (restspec & snapshot files) from your rest.li resource annotations, checks if they are compatible, and publishes them to your API project.
 
-Set your API project using `restliModelApi`, and set your compatibility mode using `restliModelCompat` to one of `OFF`, `IGNORE`, `BACKWARDS` (default), or `EQUIVALENT`. 
+Apply the plugin to your project in `build.sbt` and set your API project using `restliModelApi`, then set your compatibility mode using `restliModelCompat` to one of `OFF`, `IGNORE`, `BACKWARDS` (default), or `EQUIVALENT`. 
 
-Publishing your changes using `restliModelPublish` will copy rest models into your API project if they are compatible according to the compatibility mode selected.
+Publishing your changes using the `restliModelPublish` task will copy rest models into your API project if they are compatible according to the compatibility mode selected.
 
 ```scala
-// build.sbt
 lazy val server = (project in file("server"))
   .enablePlugins(RestliModelPlugin)
   .dependsOn(api)
@@ -56,11 +53,11 @@ lazy val server = (project in file("server"))
 
 ### RestliClientPlugin
 
-The rest.li client plugin generates java client bindings from rest models.
+The rest.li client plugin generates Java client bindings from rest models.
 
-It is possible to apply the plugin to your API project directly, but it is best practice to create a new project in order to produce separate artifacts.
+Apply the plugin to your project in `build.sbt`. It is possible to apply the plugin to your API project directly, but it is best practice to create a new project in order to produce separate artifacts.
+
 ```scala
-// build.sbt
 lazy val clientBindings = (project in file("api"))
   .enablePlugins(RestliClientPlugin)
   .dependsOn(api)
@@ -74,12 +71,12 @@ lazy val clientBindings = (project in file("api"))
 
 The rest.li avro plugin generates avro data-schemas from pegasus data-schemas in `src/main/pegasus`.
 
+Apply the plugin to your project in `build.sbt` and place data-schemas in the `src/main/pegasus` directory.
+
 ```scala
-// build.sbt
 lazy val avro = (project in file("api"))
   .enablePlugins(RestliAvroPlugin)
   .settings(
     target := target.value / "avro" // Change target to avoid conflicts
   )
 ```
-
