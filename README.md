@@ -34,6 +34,13 @@ lazy val api = (project in file("api"))
   )
 ```
 
+#### Tasks and Settings
+
+|Name|Description|Default|
+|----|-----------|-------|
+|restliSchemaGenerate|Compiles Pegasus data-schemas into java source files (triggered on compile).|N/A|
+|restliSchemaPackage|Packages Pegasus data-templates into *-data-template.jar|N/A|
+
 ### RestliModelPlugin
 
 The rest.li model plugin generates rest models (restspec & snapshot files) from your rest.li resource annotations, checks if they are compatible, and publishes them to your API project.
@@ -53,6 +60,17 @@ lazy val server = (project in file("server"))
   )
 ```
 
+#### Tasks and Settings
+
+|Name|Description|Default|
+|----|-----------|-------|
+|restliModelApi|API project to publish idl and snapshot files to.|thisProjectRef|
+|restliModelCompat|Rest model backwards compatibility level.|"BACKWARDS"|
+|restliModelResourcePackages|List of packages containing Restli resources.|All packages|
+|restliModelGenerate|Generates *.restspec.json & *.snapshot.json files from Restli resources.|N/A|
+|restliModelPublish|Validates and publishes idl and snapshot files to the API project.|N/A|
+|restliModelPackage|Package idl files into *-rest-model.jar|N/A|
+
 ### RestliClientPlugin
 
 The rest.li client plugin generates Java client bindings from rest models.
@@ -68,6 +86,15 @@ lazy val client = (project in file("client"))
     libraryDependencies += "com.linkedin.pegasus" % "restli-client" % "24.0.2"
   )
 ```
+
+#### Tasks and Settings
+
+|Name|Description|Default|
+|----|-----------|-------|
+|restliClientApi|API project containing resource idl files.|thisProjectRef|
+|restliClientDefaultPackage|Default package for client bindings.|""|
+|restliClientGenerate|Generates client bindings from API project (triggered on compile).|N/A|
+|restliClientPackage|Packages restli client bindings into *-rest-client.jar|N/A|
 
 ### RestliAvroPlugin
 
@@ -92,3 +119,10 @@ lazy val api = (project in file("api"))
     )
   )
 ```
+
+#### Tasks and Settings
+
+|Name|Description|Default|
+|----|-----------|-------|
+|restliAvroGenerate|Generates avro schemas from pegasus data-schemas (triggered on compile).|N/A|
+|restliAvroPackage|Packages avro schemas into *-avro-schema.jar|N/A|
