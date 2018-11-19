@@ -218,14 +218,14 @@ object RestliModelPlugin extends AutoPlugin {
 
   private object IncompatibleChangesException extends Exception with FeedbackProvidedException
 
-  trait RestModelChecker {
+  private trait RestModelChecker {
     def setResolverPath(resolverPath: String): Unit
     def check(prevPath: String, curPath: String, compatLevel: CompatibilityLevel): Any
     def getInfoMap: CompatibilityInfoMap
   }
 
-  class SnapshotChecker extends RestLiSnapshotCompatibilityChecker with RestModelChecker
-  class IdlChecker extends RestLiResourceModelCompatibilityChecker with RestModelChecker
+  private class SnapshotChecker extends RestLiSnapshotCompatibilityChecker with RestModelChecker
+  private class IdlChecker extends RestLiResourceModelCompatibilityChecker with RestModelChecker
 
   private lazy val publish = Def.taskDyn {
     val apiProj = restliModelApi.value

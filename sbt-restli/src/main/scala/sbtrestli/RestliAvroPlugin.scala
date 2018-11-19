@@ -51,7 +51,7 @@ object RestliAvroPlugin extends AutoPlugin {
   override def projectSettings: Seq[Def.Setting[_]] =
     inConfig(Compile)(restliAvroSettings) ++ inConfig(Test)(restliAvroSettings)
 
-  lazy val generate = Def.task {
+  private lazy val generate = Def.task {
     val resolverFiles = (sourceDirectories in restliAvroGenerate).value ++
       managedClasspath.value.files ++
       internalDependencyClasspath.value.files
