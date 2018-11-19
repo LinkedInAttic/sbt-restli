@@ -8,11 +8,11 @@ lazy val api = (project in file("api"))
     )
   )
 
-lazy val client = (project in file("api"))
+lazy val client = (project in file("client"))
   .enablePlugins(RestliClientPlugin)
   .dependsOn(api)
   .settings(
-    target := target.value / "client",
+    restliClientApi := api,
     libraryDependencies += "com.linkedin.pegasus" % "restli-client" % "24.0.2",
     unzipPackage := {
       IO.unzip((restliClientPackage in Compile).value, target.value / "rest-client")

@@ -57,14 +57,14 @@ lazy val server = (project in file("server"))
 
 The rest.li client plugin generates Java client bindings from rest models.
 
-Apply the plugin to your project in `build.sbt`. It is possible to apply the plugin to your API project directly, but it is best practice to create a new project in order to produce separate artifacts.
+Apply the plugin to your project in `build.sbt` and set your API project using `restliClientApi`.
 
 ```scala
-lazy val clientBindings = (project in file("api"))
+lazy val client = (project in file("client"))
   .enablePlugins(RestliClientPlugin)
   .dependsOn(api)
   .settings(
-    target := target.value / "client", // Change target to avoid conflicts
+    restliClientApi := api,
     libraryDependencies += "com.linkedin.pegasus" % "restli-client" % "24.0.2"
   )
 ```
@@ -78,7 +78,17 @@ Apply the plugin to your project in `build.sbt` and place data-schemas in the `s
 ```scala
 lazy val avro = (project in file("api"))
   .enablePlugins(RestliAvroPlugin)
+```
+ 
+The avro plugin may be used in conjunction with the schema plugin by applying them to the same project.
+
+```scala
+lazy val api = (project in file("api"))
+  .enablePlugins(RestliSchemaPlugin, RestliAvroPlugin)
   .settings(
-    target := target.value / "avro" // Change target to avoid conflicts
+    libraryDependencies ++= Seq(
+      "com.linkedin.pegasus" % "data" % "24.0.2",
+      "com.google.code.findbugs" % "jsr305" % "3.0.0"
+    )
   )
 ```

@@ -13,11 +13,13 @@ import scala.collection.JavaConverters._
 
 object RestliClientPlugin extends AutoPlugin {
   object autoImport {
+    val restliClientApi = settingKey[ProjectReference]("API project containing resource idl files.")
     val restliClientDefaultPackage = settingKey[String]("Default package for client bindings.")
     val restliClientGenerate = taskKey[Seq[File]]("Generates client bindings from API project.")
     val restliClientPackage = taskKey[File]("Packages restli client bindings into *-rest-client.jar")
 
     val restliClientDefaults: Seq[Def.Setting[_]] = Seq(
+      restliClientApi := thisProjectRef.value,
       restliClientDefaultPackage := ""
     )
 
@@ -25,7 +27,12 @@ object RestliClientPlugin extends AutoPlugin {
       includeFilter in restliClientGenerate := "*.restspec.json",
       excludeFilter in restliClientGenerate := HiddenFileFilter,
 
-      sourceDirectory in restliClientGenerate := sourceDirectory.value / "idl",
+      sourceDirectory in restliClientGenerate := Def.settingDyn {
+        val apiProject = restliClientApi.value
+        Def.setting {
+          (sourceDirectory in apiProject).value / "idl"
+        }
+      }.value,
       sourceDirectories in restliClientGenerate := Seq((sourceDirectory in restliClientGenerate).value),
       sourceDirectories ++= (sourceDirectories in restliClientGenerate).value,
 
