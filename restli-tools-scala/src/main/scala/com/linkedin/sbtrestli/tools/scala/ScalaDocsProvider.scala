@@ -22,13 +22,14 @@ import com.linkedin.restli.internal.server.model.ResourceModelEncoder.DocsProvid
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.JavaConverters._
+import scala.reflect.io.File
 import scala.tools.nsc.doc.model.{Def, DocTemplateEntity, MemberEntity, TemplateEntity}
 import scala.tools.nsc.doc.{DocFactory, Settings}
 import scala.tools.nsc.reporters.ConsoleReporter
 
 /** Scaladoc version of a rest.li DocsProvider. */
 class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
-  val log: Logger = LoggerFactory.getLogger(classOf[ScalaDocsProvider])
+  private val log: Logger = LoggerFactory.getLogger(classOf[ScalaDocsProvider])
 
   def this() = this(Array())
 
@@ -42,11 +43,11 @@ class ScalaDocsProvider(classpath: Array[String]) extends DocsProvider {
       if(classpath == null) {
         settings.usejavacp.value = true
       } else {
-        settings.classpath.value = classpath.mkString(":")
+        settings.classpath.value = classpath.mkString(File.pathSeparator)
       }
       val reporter = new ConsoleReporter(settings)
       val docFactory = new DocFactory(reporter, settings)
-      val filelist = if (files == null || files.size == 0) List() else files.asScala.toList
+      val filelist = files.asScala.toList
       val universe = docFactory.makeUniverse(Left(filelist))
       universe.map(_.rootPackage.asInstanceOf[DocTemplateEntity])
     }
