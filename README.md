@@ -59,7 +59,6 @@ lazy val server = (project in file("server"))
   .dependsOn(api)
   .settings(
     restliModelApi := api,
-    restliModelCompat := "BACKWARDS",
     libraryDependencies += "com.linkedin.pegasus" % "restli-server" % "24.0.2"
   )
 ```
