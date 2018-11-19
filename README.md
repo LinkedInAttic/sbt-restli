@@ -15,7 +15,11 @@ addSbtPlugin("com.linkedin.sbt-restli" % "sbt-restli" % "TODO")
 Usage
 -----
 
-Sbt-restli is made up of 4 individual plugins.
+Sbt-restli contains 4 individual plugins. A typical rest.li project might apply these plugins to 3 sbt subprojects:
+
+1) An API project, applying the [RestliSchemaPlugin](#restlischemaplugin) and (optionally) the [RestliAvroPlugin](#restliavroplugin).
+2) A server project, applying the [RestliModelPlugin](#restlimodelplugin).
+3) A client project, applying the [RestliClientPlugin](#restliclientplugin).
 
 ### RestliSchemaPlugin
 
