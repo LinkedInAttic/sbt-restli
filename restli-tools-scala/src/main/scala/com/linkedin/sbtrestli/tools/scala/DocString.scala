@@ -1,14 +1,23 @@
 package com.linkedin.sbtrestli.tools.scala
 
+import org.slf4j.{Logger, LoggerFactory}
+
 import scala.tools.nsc.doc.base._
 import scala.tools.nsc.doc.base.comment._
 
+/** Converts a scala markdown comment into an html formatted string. */
 trait DocString {
+  private val log: Logger = LoggerFactory.getLogger(classOf[DocString])
+
   def apply(body: Body): String = body.blocks.map(blockDocString).mkString.trim
 
   protected def linkToDocString: PartialFunction[LinkTo, String] = {
-    case LinkToMember(_, _) => "" // unsupported
-    case LinkToTpl(_) => "" // unsupported
+    case LinkToMember(_, _) =>
+      log.warn("LinkToMember not supported.")
+      ""
+    case LinkToTpl(_) =>
+      log.warn("LinkToTpl not supported.")
+      ""
     case Tooltip(name) => name
   }
 
