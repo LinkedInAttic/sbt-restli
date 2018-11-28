@@ -2,6 +2,8 @@
 
 A collection of sbt plugins providing build integration for the [rest.li](https://github.com/linkedin/rest.li) REST framework.
 
+The restli-tools-scala module contains a doc provider for rest.li resources written in Scala. It is included automatically when using sbt-restli, but you may depend on it directly if you are using the gradle pegasus plugin. 
+
 > **NOTE**: sbt-restli is built and tested against pegasus v24.0.2. While it should be compatible with other versions, no guarantees can be made.
 
 Setup
