@@ -1,0 +1,23 @@
+language: scala
+
+jdk: oraclejdk8
+
+env:
+  - SBT_PROJECT=restliToolsScala
+    SBT_VERSION_COMMAND=++2.10.7
+    SBT_TEST_COMMAND=test
+  - SBT_PROJECT=restliToolsScala
+    SBT_VERSION_COMMAND=++2.11.12
+    SBT_TEST_COMMAND=test
+  - SBT_PROJECT=restliToolsScala
+    SBT_VERSION_COMMAND=++2.12.7
+    SBT_TEST_COMMAND=test
+  - SBT_PROJECT=sbtRestli
+    SBT_VERSION_COMMAND=^^0.13.17
+    SBT_TEST_COMMAND=scripted
+  - SBT_PROJECT=sbtRestli
+    SBT_VERSION_COMMAND=^^1.2.6
+    SBT_TEST_COMMAND=scripted
+
+script:
+  - sbt "project $SBT_PROJECT" $SBT_VERSION_COMMAND $SBT_TEST_COMMAND
