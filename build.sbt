@@ -32,7 +32,7 @@ lazy val sbtRestli = (project in file("sbt-restli"))
 lazy val restliToolsScala = (project in file("restli-tools-scala"))
   .settings(
     name := "restli-tools-scala",
-    crossScalaVersions := Seq("2.10.7", "2.12.7"),
+    crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.7"),
     // Do not remove this line or tests break. Sbt mangles the java.class.path system property unless forking is enabled :(
     fork in Test := true,
     libraryDependencies ++= Seq(
