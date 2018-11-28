@@ -19,7 +19,8 @@ lazy val sbtRestli = (project in file("sbt-restli"))
   .dependsOn(restliToolsScala)
   .settings(
     name := "sbt-restli",
-    crossSbtVersions := Seq("1.2.6", "0.13.17"),
+    crossSbtVersions := Seq("0.13.17", "1.2.6"),
+    crossScalaVersions := Seq("2.10.7", "2.12.7"),
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scripted := scripted.dependsOn(publishLocal in restliToolsScala).evaluated,
     libraryDependencies ++= Seq(
