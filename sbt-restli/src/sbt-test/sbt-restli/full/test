@@ -29,4 +29,46 @@ $ exists api/src/main/snapshot/com.example.fortune.fortunes.snapshot.json
 $ exists client/src/mainGeneratedRest/java/com/example/fortune/FortunesRequestBuilders.java
 $ exists client/src/mainGeneratedRest/java/com/example/fortune/FortunesGetRequestBuilder.java
 
+# Package schema & avro files, then extract
+> project fortuneApi
+> unzipPackage
 
+# Schema was packaged with expected name
+$ exists fortune-api/target/fortune-api-0.1.0-data-template.jar
+
+# Schema contains expected files
+$ exists fortune-api/target/schema/jar/pegasus/com/example/fortune/Fortune.pdsc
+$ exists fortune-api/target/schema/jar/com/example/fortune/Fortune.class
+$ exists fortune-api/target/schema/jar/com/example/fortune/Fortune$Fields.class
+
+# Avro was packaged with expected name
+$ exists fortune-api/target/fortune-api-0.1.0-avro-schema.jar
+
+# Avro contains expected files
+$ exists fortune-api/target/avro/jar/com/example/fortune/Fortune.avsc
+
+# Avro does not contain pdsc schema files
+$ absent fortune-api/target/avro/jar/pegasus/com/example/fortune/Fortune.pdsc
+$ absent fortune-api/target/avro/jar/com/example/fortune/Fortune.class
+$ absent fortune-api/target/avro/jar/com/example/fortune/Fortune$Fields.class
+
+# Package client and extract
+> project client
+> unzipPackage
+
+# Client was packaged with expected name
+$ exists client/target/client-0.1.0-rest-client.jar
+
+# Client contains expected files
+$ exists client/target/jar/com/example/fortune/FortunesGetRequestBuilder.class
+$ exists client/target/jar/com/example/fortune/FortunesRequestBuilders.class
+
+# Package model and extract
+> project server
+> unzipPackage
+
+# Model was packaged with expected name
+$ exists server/target/server-0.1.0-rest-model.jar
+
+# Model contains expected files
+$ exists server/target/jar/idl/com.example.fortune.fortunes.restspec.json

@@ -1,4 +1,0 @@
-> compile
-$ exists fortune-api/src/mainGeneratedDataTemplate/java/com/example/fortune/Fortune.java
-$ exists src/mainGeneratedDataTemplate/java/com/example/fortuneteller/FortuneTeller.java
--$ exists src/mainGeneratedDataTemplate/java/com/example/fortuneteller/Fortune.java

@@ -1,6 +1,0 @@
-> project server
-
-> restliModelPackage
-> unzipPackage
-$ exists server/target/rest-model/idl/com.example.fortune.fortunes.restspec.json
-

@@ -1,5 +1,0 @@
-> restliAvroPackage
-$ exists target/avro-schema-package-0.1.0-avro-schema.jar
-
-> unzipPackage
-$ exists target/avro-schema/com/example/fortune/Fortune.avsc
