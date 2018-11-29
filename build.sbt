@@ -11,9 +11,12 @@ def log4jDependencies(sbtVersion: String): Seq[ModuleID] = {
   ) else Nil
 }
 
+val repoUrl = url("https://github.com/linkedin/sbt-restli")
+
 inThisBuild(Seq(
   licenses := Seq(("Apache-2.0", url("https://github.com/linkedin/sbt-restli/blob/master/LICENSE.TXT"))),
-  homepage := Some(url("https://github.com/linkedin/sbt-restli")),
+  homepage := Some(repoUrl),
+  scmInfo := Some(ScmInfo(repoUrl, "scm:git:git@github.com:linkedin/sbt-restli.git")),
   organization := "com.linkedin.sbt-restli",
   bintrayOrganization := Some("sbt-restli"),
   releaseEarlyWith := BintrayPublisher,
