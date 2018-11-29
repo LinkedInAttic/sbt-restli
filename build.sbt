@@ -11,8 +11,16 @@ def log4jDependencies(sbtVersion: String): Seq[ModuleID] = {
   ) else Nil
 }
 
-ThisBuild / version := "0.3.0-SNAPSHOT"
-ThisBuild / organization := "com.linkedin.sbt-restli"
+inThisBuild(Seq(
+  licenses := Seq(("Apache-2.0", url("https://github.com/linkedin/sbt-restli/blob/master/LICENSE.TXT"))),
+  homepage := Some(url("https://github.com/linkedin/sbt-restli")),
+  organization := "com.linkedin.sbt-restli",
+  bintrayOrganization := Some("sbt-restli"),
+  releaseEarlyWith := BintrayPublisher,
+  releaseEarlyEnableSyncToMaven := false,
+  pgpPublicRing := file("./travis/local.pubring.asc"),
+  pgpSecretRing := file("./travis/local.secring.asc")
+))
 
 lazy val sbtRestli = (project in file("sbt-restli"))
   .enablePlugins(SbtPlugin)

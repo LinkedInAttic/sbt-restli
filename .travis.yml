@@ -2,21 +2,29 @@ language: scala
 
 jdk: oraclejdk8
 
-matrix:
+stages:
+  - name: test
+  - name: release
+    if: ((branch = master) AND (type != pull_request)) OR (tag IS present)
+
+jobs:
   include:
     - name: "sbt-restli [sbt 0.13]"
-      env: SBT_COMMAND="++2.10.7 ^^0.13.17 sbtRestli/scripted"
+      script: sbt ++2.10.7 ^^0.13.17 sbtRestli/scripted
     - name: "sbt-restli [sbt 1.x]"
-      env: SBT_COMMAND="++2.12.7 ^^1.2.6 sbtRestli/scripted"
+      script: sbt ++2.12.7 ^^1.2.6 sbtRestli/scripted
     - name: "restli-tools-scala [scala 2.10]"
-      env: SBT_COMMAND="++2.10.7 restliToolsScala/test"
+      script: sbt ++2.10.7 restliToolsScala/test
     - name: "restli-tools-scala [scala 2.11]"
-      env: SBT_COMMAND="++2.11.12 restliToolsScala/test"
+      script: sbt ++2.11.12 restliToolsScala/test
     - name: "restli-tools-scala [scala 2.12]"
-      env: SBT_COMMAND="++2.12.7 restliToolsScala/test"
-
-script:
-  - sbt $SBT_COMMAND
+      script: sbt ++2.12.7 restliToolsScala/test
+    - stage: release
+      name: "bintray release"
+      script: |
+        openssl aes-256-cbc -K $encrypted_e18bda2bc111_key -iv $encrypted_e18bda2bc111_iv -in travis/secrets.tar.enc -out travis/local.secrets.tar -d &&
+          tar xv -C travis -f travis/local.secrets.tar &&
+          sbt 'project restliToolsScala' '+releaseEarly' 'project sbtRestli' '^releaseEarly'
 
 # These directories are cached to S3 at the end of the build
 cache:
@@ -28,3 +36,12 @@ before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
   - find $HOME/.sbt        -name "*.lock"               -print -delete
+
+env:
+  global:
+  # travis encrypt 'PGP_PASS=...'
+  - secure: "YfwtgdXj48nRCNgvRdVfQsM50KiwxCgMszz23ZSzXa4B4fSEt4KT+1CxSsIkzl+5TP04NhzB7TmF55BSRcsPa1kNWOkf4ANW3gr/Wmqn83Qp+AwEFl5GQHBkUnjKKTsIuVwHpFZ5Ufg6FNaOuKGTOAlATqhUBuOMgkn7XJF7jiI="
+  # travis encrypt 'BINTRAY_USER=...'
+  - secure: "jwoa12M7FNIFzlgXdfw1/65icJrH31JyXzpV/NaEHEizYOXhX8bJRC58GlbZS6cWMU/p3sN8C5+chh4mOXDJVynOKxV49yKDxJZ6ChtwrnBkTtuFKglkQej7IzCt3/UX1VSXFotI+blWiPbsylEUCoAP0mIrmLzfJ436YRziQFk="
+  # travis encrypt 'BINTRAY_PASS=...'
+  - secure: "DrdqMInM1ZsaFTGOuvJPyJ/OkFbfvro5RC1NhDyxdkRIlAClT/iBvym2MBN9nNDUMOYFChs5tg8kGN/ghwua6Sb0eDUHIHXu3pgeEqDVe3MX8JKTaWVS4BarQ24s94ycS4PDbe4WF/Cbk9olnMxt6IiY1qvMGHKwzXuiSc6Q3xA="
