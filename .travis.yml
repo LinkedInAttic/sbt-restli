@@ -6,7 +6,7 @@ matrix:
   include:
     - name: "sbt-restli [sbt 0.13]"
       env: SBT_COMMAND="++2.10.7 ^^0.13.17 sbtRestli/scripted"
-    - name: "sbt-restli [sbt 1.0]"
+    - name: "sbt-restli [sbt 1.x]"
       env: SBT_COMMAND="++2.12.7 ^^1.2.6 sbtRestli/scripted"
     - name: "restli-tools-scala [scala 2.10]"
       env: SBT_COMMAND="++2.10.7 restliToolsScala/test"
