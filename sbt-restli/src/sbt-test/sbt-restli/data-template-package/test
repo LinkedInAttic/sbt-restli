@@ -1,7 +1,0 @@
-> restliSchemaPackage
-$ exists target/data-template-package-0.1.0-data-template.jar
-
-> unzipPackage
-$ exists target/data-template/pegasus/com/example/fortune/Fortune.pdsc
-$ exists target/data-template/com/example/fortune/Fortune.class
-$ exists target/data-template/com/example/fortune/Fortune$Fields.class
