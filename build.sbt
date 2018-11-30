@@ -22,6 +22,7 @@ inThisBuild(Seq(
   bintrayOrganization := Some("sbt-restli"),
   releaseEarlyWith := BintrayPublisher,
   releaseEarlyEnableSyncToMaven := false,
+  resolvers += Resolver.bintrayRepo("sbt-restli", "maven"),
   pgpPublicRing := file("./travis/local.pubring.asc"),
   pgpSecretRing := file("./travis/local.secring.asc")
 ))
