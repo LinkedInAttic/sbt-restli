@@ -1,4 +1,4 @@
-# sbt-restli [![Build Status](https://travis-ci.org/linkedin/sbt-restli.svg?branch=master)](https://travis-ci.org/linkedin/sbt-restli)
+# sbt-restli  [![Build Status](https://travis-ci.org/linkedin/sbt-restli.svg?branch=master)](https://travis-ci.org/linkedin/sbt-restli) [ ![Download](https://api.bintray.com/packages/sbt-restli/sbt-plugins/sbt-restli/images/download.svg) ](https://bintray.com/sbt-restli/sbt-plugins/sbt-restli/_latestVersion)
 
 A collection of sbt plugins providing build integration for the [rest.li](https://github.com/linkedin/rest.li) REST framework.
 
