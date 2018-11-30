@@ -24,7 +24,8 @@ jobs:
       script: |
         openssl aes-256-cbc -K $encrypted_e18bda2bc111_key -iv $encrypted_e18bda2bc111_iv -in travis/secrets.tar.enc -out travis/local.secrets.tar -d &&
           tar xv -C travis -f travis/local.secrets.tar &&
-          sbt 'project restliToolsScala' '+releaseEarly' 'project sbtRestli' '^releaseEarly'
+          sbt 'project restliToolsScala' '+releaseEarly' &&
+          sbt 'project sbtRestli' '^releaseEarly'
 
 # These directories are cached to S3 at the end of the build
 cache:
