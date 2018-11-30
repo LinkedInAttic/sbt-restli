@@ -46,3 +46,7 @@ env:
   - secure: "jwoa12M7FNIFzlgXdfw1/65icJrH31JyXzpV/NaEHEizYOXhX8bJRC58GlbZS6cWMU/p3sN8C5+chh4mOXDJVynOKxV49yKDxJZ6ChtwrnBkTtuFKglkQej7IzCt3/UX1VSXFotI+blWiPbsylEUCoAP0mIrmLzfJ436YRziQFk="
   # travis encrypt 'BINTRAY_PASS=...'
   - secure: "DrdqMInM1ZsaFTGOuvJPyJ/OkFbfvro5RC1NhDyxdkRIlAClT/iBvym2MBN9nNDUMOYFChs5tg8kGN/ghwua6Sb0eDUHIHXu3pgeEqDVe3MX8JKTaWVS4BarQ24s94ycS4PDbe4WF/Cbk9olnMxt6IiY1qvMGHKwzXuiSc6Q3xA="
+  # travis encrypt 'SONA_USER=...'
+  - secure: "UpQYen/rvGLVqipTdGeUQhY8EL7f1JStvQ1wD3f7QKPPx45DfEHS9YpgLN4kG1oAATZ3Xf9mGwa/+cBSORy2bmvwU/IjlL585YF0juRmKmfEponC+wFThGT7vHxM01g4ehGGx3Ty7dhMzBQPi1IuGbJQT2LFZlk2GI1bVFwML5I="
+  # travis encrypt 'SONA_PASS=...'
+  - secure: "BLqUtvWevqzj8+YLxh3DsewS6LD+sXyBEnQRRi9wSU2/G1yJo79janZMd7EyCOvsDMnlQ6B5Utto5Z7gDRoRYBEV2bb8tzXZcUUkntKQgx12uYLngfkie4/ac0/52shedJjMNRv+/9FIDcrw/7Etxw2hwYRvpxjDKxOFScICiu0="
