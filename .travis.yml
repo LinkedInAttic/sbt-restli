@@ -20,7 +20,7 @@ jobs:
     - name: "restli-tools-scala [scala 2.12]"
       script: sbt ++2.12.7 restliToolsScala/test
     - stage: release
-      name: "bintray release"
+      name: "bintray/sonatype release"
       script: |
         openssl aes-256-cbc -K $encrypted_567340692c63_key -iv $encrypted_567340692c63_iv -in travis/secrets.tar.enc -out travis/local.secrets.tar -d &&
           tar xv -C travis -f travis/local.secrets.tar &&
