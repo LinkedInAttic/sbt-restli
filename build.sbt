@@ -35,6 +35,7 @@ lazy val sbtRestli = (project in file("sbt-restli"))
     crossScalaVersions := Seq("2.10.7", "2.12.7"),
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scripted := scripted.dependsOn(publishLocal in restliToolsScala).evaluated,
+    releaseEarlyEnableSyncToMaven := false,
     libraryDependencies ++= Seq(
       "com.linkedin.pegasus" % "generator" % pegasusVersion,
       "com.linkedin.pegasus" % "restli-tools" % pegasusVersion,
