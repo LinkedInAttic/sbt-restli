@@ -19,9 +19,6 @@ inThisBuild(Seq(
   scmInfo := Some(ScmInfo(repoUrl, "scm:git:git@github.com:linkedin/sbt-restli.git")),
   developers := List(Developer("TylerHorth", "Tyler Horth", "tylerhorth@outlook.com", url("https://github.com/TylerHorth"))),
   organization := "com.linkedin.sbt-restli",
-  bintrayOrganization := Some("sbt-restli"),
-  releaseEarlyWith := BintrayPublisher,
-  resolvers += Resolver.bintrayRepo("sbt-restli", "maven"),
   pgpPublicRing := file("./travis/local.pubring.asc"),
   pgpSecretRing := file("./travis/local.secring.asc")
 ))
@@ -36,6 +33,9 @@ lazy val sbtRestli = (project in file("sbt-restli"))
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     scripted := scripted.dependsOn(publishLocal in restliToolsScala).evaluated,
     releaseEarlyEnableSyncToMaven := false,
+    bintrayOrganization := Some("sbt-restli"),
+    releaseEarlyWith := BintrayPublisher,
+    resolvers += Resolver.sonatypeRepo("releases"),
     libraryDependencies ++= Seq(
       "com.linkedin.pegasus" % "generator" % pegasusVersion,
       "com.linkedin.pegasus" % "restli-tools" % pegasusVersion,
@@ -48,6 +48,7 @@ lazy val restliToolsScala = (project in file("restli-tools-scala"))
   .settings(
     name := "restli-tools-scala",
     crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.7"),
+    releaseEarlyWith := SonatypePublisher,
     // Do not remove this line or tests break. Sbt mangles the java.class.path system property unless forking is enabled :(
     fork in Test := true,
     libraryDependencies ++= Seq(
