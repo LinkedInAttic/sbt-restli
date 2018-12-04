@@ -1,4 +1,5 @@
-# sbt-restli  [![Build Status](https://travis-ci.org/linkedin/sbt-restli.svg?branch=master)](https://travis-ci.org/linkedin/sbt-restli) [ ![Download](https://api.bintray.com/packages/sbt-restli/sbt-plugins/sbt-restli/images/download.svg) ](https://bintray.com/sbt-restli/sbt-plugins/sbt-restli/_latestVersion)
+# sbt-restli  [![Build Status](https://travis-ci.org/linkedin/sbt-restli.svg?branch=master)](https://travis-ci.org/linkedin/sbt-restli) [![Latest Version](https://img.shields.io/github/tag/linkedin/sbt-restli.svg?label=version)](https://bintray.com/sbt-restli/sbt-plugins/sbt-restli)
+
 
 A collection of sbt plugins providing build integration for the [rest.li](https://github.com/linkedin/rest.li) REST framework.
 
@@ -11,7 +12,7 @@ Setup
 
 Install the plugins to your sbt project in `project/plugins.sbt`:
 ```scala
-addSbtPlugin("com.linkedin.sbt-restli" % "sbt-restli" % "TODO")
+addSbtPlugin("com.linkedin.sbt-restli" % "sbt-restli" % "<version>")
 ```
 
 Usage
